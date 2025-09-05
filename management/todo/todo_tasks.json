@@ -132,6 +132,19 @@
       "details_file": "tasks/TASK-20250905-1714_요구사항정의서업데이트.md"
     },
     {
+      "id": "TASK-20250905-1752",
+      "title": "시스템 아키텍처 설계 및 기술 스택 확정",
+      "description": "MVP 요구사항 기반 AWS 서버리스 아키텍처 설계 및 개발 환경 구성",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "estimated_hours": 2,
+      "created_at": "2025-09-05T17:52:00Z",
+      "due_date": "2025-09-05T19:52:00Z",
+      "details_file": "tasks/TASK-20250905-1752_시스템아키텍처설계.md"
+    },
+    {
       "id": "TASK-010",
       "title": "TASK-008/009 분석 자료 비교 검토",
       "description": "위생상태 점검표 분석(TASK-008)과 GMP 운영일지 데이터 분석(TASK-009) 결과물 간 일관성 및 연계성 검토",
