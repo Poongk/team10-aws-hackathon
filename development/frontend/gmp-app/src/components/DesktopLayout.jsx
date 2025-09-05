@@ -1,8 +1,10 @@
-import { Routes, Route } from 'react-router-dom'
-import AdminDashboard from '../pages/AdminDashboard'
-import NonCompliancePage from '../pages/NonCompliancePage'
-import SettingsPage from '../pages/SettingsPage'
-import DesktopNavigation from './DesktopNavigation'
+import { Routes, Route } from 'react-router-dom';
+import DesktopNavigation from './DesktopNavigation';
+
+// 임시 플레이스홀더 컴포넌트들
+const AdminDashboard = () => <div className="placeholder">관리자 대시보드 (개발 예정)</div>;
+const NonCompliancePage = () => <div className="placeholder">부적합 관리 (개발 예정)</div>;
+const SettingsPage = () => <div className="placeholder">설정 (개발 예정)</div>;
 
 function DesktopLayout() {
   return (
@@ -19,7 +21,7 @@ function DesktopLayout() {
       </Routes>
       <DesktopNavigation />
     </div>
-  )
+  );
 }
 
-export default DesktopLayout
+export default DesktopLayout;

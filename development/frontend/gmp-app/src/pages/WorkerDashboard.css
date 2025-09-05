@@ -1,0 +1,214 @@
+/* WK-002: 개인 대시보드 스타일 - 스코프 제한 */
+
+/* 대시보드 컨테이너 */
+.worker-dashboard {
+  /* 기본 페이지 컨테이너 스타일 상속 */
+}
+
+/* 헤더 */
+.worker-dashboard .dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 24px;
+}
+
+.worker-dashboard .back-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #1890ff;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.worker-dashboard .back-button:hover {
+  color: #40a9ff;
+}
+
+.worker-dashboard .dashboard-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  margin-right: 40px; /* 뒤로가기 버튼 공간 보정 */
+}
+
+/* 환영 메시지 */
+.worker-dashboard .welcome-section {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+  border-radius: 12px;
+}
+
+.worker-dashboard .welcome-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0 0 8px 0;
+}
+
+.worker-dashboard .welcome-section p {
+  font-size: 14px;
+  color: #595959;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* 액션 카드 컨테이너 */
+.worker-dashboard .action-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* 카드 공통 스타일 */
+.worker-dashboard .dashboard-card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.worker-dashboard .dashboard-card:hover {
+  border-color: #d9d9d9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.worker-dashboard .dashboard-card:active {
+  transform: translateY(0);
+}
+
+/* 메인 액션 카드 (체크리스트 작성) */
+.worker-dashboard .main-action {
+  border-left: 4px solid #1890ff;
+}
+
+.worker-dashboard .main-action:hover {
+  border-left-color: #40a9ff;
+  background: #f6ffed;
+}
+
+/* 보조 액션 카드 (결과 보기) */
+.worker-dashboard .secondary-action {
+  border-left: 4px solid #8c8c8c;
+}
+
+.worker-dashboard .secondary-action:hover {
+  border-left-color: #595959;
+  background: #fafafa;
+}
+
+/* 카드 내부 요소 */
+.worker-dashboard .card-icon {
+  font-size: 32px;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.worker-dashboard .card-content {
+  flex: 1;
+}
+
+.worker-dashboard .card-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0 0 4px 0;
+}
+
+.worker-dashboard .card-content p {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.worker-dashboard .card-arrow {
+  font-size: 18px;
+  color: #bfbfbf;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+.worker-dashboard .dashboard-card:hover .card-arrow {
+  color: #1890ff;
+}
+
+/* 푸터 */
+.worker-dashboard .dashboard-footer {
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.worker-dashboard .logout-button {
+  background: none;
+  border: none;
+  color: #8c8c8c;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 16px;
+  text-decoration: underline;
+}
+
+.worker-dashboard .logout-button:hover {
+  color: #ff4d4f;
+}
+
+/* 로딩 상태 */
+.worker-dashboard .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .worker-dashboard .dashboard-header {
+    padding: 12px 0;
+  }
+  
+  .worker-dashboard .dashboard-header h1 {
+    font-size: 18px;
+    margin-right: 32px;
+  }
+  
+  .worker-dashboard .welcome-section {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  
+  .worker-dashboard .welcome-section h2 {
+    font-size: 18px;
+  }
+  
+  .worker-dashboard .dashboard-card {
+    padding: 20px;
+  }
+  
+  .worker-dashboard .card-icon {
+    font-size: 28px;
+    margin-right: 12px;
+  }
+  
+  .worker-dashboard .card-content h3 {
+    font-size: 16px;
+  }
+}
