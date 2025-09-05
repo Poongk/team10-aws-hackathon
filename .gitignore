@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 __pycache__/
@@ -33,43 +32,4 @@ build/
 *.tmp
 *.temp
 
-# Chat logs (personal conversation records)
-planning/chat-logs/
-
-# Chat logs (personal conversation records)
-planning/chat-logs/
-=======
-# Dependencies
-node_modules/
-__pycache__/
-*.pyc
-
-# Environment
-.env
-.env.local
-
-# AWS
-.aws/
-*.pem
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Build
-dist/
-build/
-*.zip
-
-# Temporary files
-*.tmp
-*.temp
->>>>>>> 354f5183a496998ce5b5a0ba632affa6360cda35
+management/chat-logs
