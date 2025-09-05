@@ -1,0 +1,11 @@
+{
+  "httpMethod": "PUT",
+  "path": "/checklists/records/record_123",
+  "pathParameters": {
+    "record_id": "record_123"
+  },
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"responses\":[{\"item_id\":\"item_001\",\"value\":true}],\"notes\":\"복장을 정리했습니다\"}"
+}

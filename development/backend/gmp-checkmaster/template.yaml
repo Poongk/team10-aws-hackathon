@@ -1,0 +1,227 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: GMP CheckMaster AI - 해커톤 백엔드 (확장 버전)
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        NODE_ENV: development
+        CORS_ORIGIN: "*"
+
+Resources:
+  # 인증 핸들러
+  AuthHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: auth-handler/
+      Handler: index.handler
+      Events:
+        LoginApi:
+          Type: Api
+          Properties:
+            Path: /auth/login
+            Method: post
+        LogoutApi:
+          Type: Api
+          Properties:
+            Path: /auth/logout
+            Method: post
+        VerifyApi:
+          Type: Api
+          Properties:
+            Path: /auth/verify
+            Method: get
+
+  # 체크리스트 핸들러 (확장)
+  ChecklistHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: checklist-handler/
+      Handler: index.handler
+      Events:
+        GetTemplates:
+          Type: Api
+          Properties:
+            Path: /checklists/templates
+            Method: get
+        SubmitChecklist:
+          Type: Api
+          Properties:
+            Path: /checklists/submit
+            Method: post
+        GetRecords:
+          Type: Api
+          Properties:
+            Path: /checklists/records
+            Method: get
+        UpdateRecord:
+          Type: Api
+          Properties:
+            Path: /checklists/records/{record_id}
+            Method: put
+        ModificationRequest:
+          Type: Api
+          Properties:
+            Path: /checklists/modification-request
+            Method: post
+        EmergencyReview:
+          Type: Api
+          Properties:
+            Path: /checklists/emergency-review
+            Method: post
+
+  # AI 판정 핸들러 (확장)
+  AIJudgmentHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ai-judgment-handler/
+      Handler: index.handler
+      MemorySize: 512
+      Events:
+        JudgeApi:
+          Type: Api
+          Properties:
+            Path: /ai/judge
+            Method: post
+        GetJudgment:
+          Type: Api
+          Properties:
+            Path: /ai/judgment/{record_id}
+            Method: get
+
+  # QR 코드 핸들러
+  QRHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: qr-handler/
+      Handler: index.handler
+      Events:
+        GenerateQR:
+          Type: Api
+          Properties:
+            Path: /qr/generate
+            Method: post
+        VerifyQR:
+          Type: Api
+          Properties:
+            Path: /qr/verify
+            Method: post
+
+  # 대시보드 핸들러 (확장)
+  DashboardHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dashboard-handler/
+      Handler: index.handler
+      Events:
+        GetStats:
+          Type: Api
+          Properties:
+            Path: /dashboard/stats
+            Method: get
+        GetReports:
+          Type: Api
+          Properties:
+            Path: /dashboard/reports
+            Method: get
+        GetStatus:
+          Type: Api
+          Properties:
+            Path: /dashboard/status
+            Method: get
+        GetTeamStatus:
+          Type: Api
+          Properties:
+            Path: /dashboard/team/{team_id}
+            Method: get
+
+  # 배정 관리 핸들러 (신규)
+  AssignmentHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: assignment-handler/
+      Handler: index.handler
+      Events:
+        GetAssignments:
+          Type: Api
+          Properties:
+            Path: /assignment/list
+            Method: get
+        CreateAssignment:
+          Type: Api
+          Properties:
+            Path: /assignment/create
+            Method: post
+
+  # 알림 핸들러 (신규)
+  NotificationHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: notification-handler/
+      Handler: index.handler
+      Events:
+        SendNotification:
+          Type: Api
+          Properties:
+            Path: /notification/send
+            Method: post
+
+  # 관리자 핸들러 (신규)
+  AdminHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: admin-handler/
+      Handler: index.handler
+      Events:
+        CreateTemplate:
+          Type: Api
+          Properties:
+            Path: /admin/templates
+            Method: post
+        SetQRValidity:
+          Type: Api
+          Properties:
+            Path: /admin/qr-validity/template/{template_id}
+            Method: put
+        AdjustDailyQR:
+          Type: Api
+          Properties:
+            Path: /operator/qr-validity/daily
+            Method: put
+
+  # 조치 관리 핸들러 (신규)
+  ActionHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: action-handler/
+      Handler: index.handler
+      Events:
+        GetActionList:
+          Type: Api
+          Properties:
+            Path: /actions/list
+            Method: get
+        UpdateActionStatus:
+          Type: Api
+          Properties:
+            Path: /actions/{record_id}/status
+            Method: put
+        CompleteAction:
+          Type: Api
+          Properties:
+            Path: /actions/{record_id}/complete
+            Method: post
+        GetActionStatus:
+          Type: Api
+          Properties:
+            Path: /actions/status/{record_id}
+            Method: get
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

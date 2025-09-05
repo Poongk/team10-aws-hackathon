@@ -1,0 +1,8 @@
+{
+  "httpMethod": "POST",
+  "path": "/qr/generate",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"user_id\":\"worker1\",\"record_id\":\"record_1693900800000\"}"
+}
