@@ -46,32 +46,6 @@
       "details_file": "tasks/TASK-002_Git저장소설정.md"
     },
     {
-      "id": "TASK-003",
-      "title": "시스템 아키텍처 설계",
-      "description": "AWS 서비스 구성도, API 설계, 데이터 모델 설계",
-      "assigned_to": "백승재",
-      "assigned_by": "백승재",
-      "priority": "HIGH", 
-      "status": "TODO",
-      "estimated_hours": 2,
-      "created_at": "2025-09-05T13:40:00Z",
-      "due_date": "2025-09-05T16:00:00Z",
-      "details_file": "tasks/TASK-003_시스템아키텍처.md"
-    },
-    {
-      "id": "TASK-004",
-      "title": "UI/UX 와이어프레임 설계",
-      "description": "작업자/관리자 화면 와이어프레임, 사용자 플로우",
-      "assigned_to": "풍기덕",
-      "assigned_by": "백승재",
-      "priority": "MEDIUM",
-      "status": "TODO", 
-      "estimated_hours": 2,
-      "created_at": "2025-09-05T13:40:00Z",
-      "due_date": "2025-09-05T16:00:00Z",
-      "details_file": "tasks/TASK-004_UI와이어프레임.md"
-    },
-    {
       "id": "TASK-005",
       "title": "현재 프로젝트 내용 GitHub 업로드",
       "description": "로컬 작업 내용을 GitHub 저장소에 업로드 및 구조 정리",
@@ -93,7 +67,7 @@
       "assigned_to": "풍기덕",
       "assigned_by": "백승재",
       "priority": "MEDIUM",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "estimated_hours": 0.5,
       "created_at": "2025-09-05T13:59:00Z",
       "due_date": "2025-09-05T15:30:00Z",
@@ -102,5 +76,5 @@
   ],
   "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
   "priority_levels": ["LOW", "MEDIUM", "HIGH", "URGENT"],
-  "last_updated": "2025-09-05T13:40:00Z"
+  "last_updated": "2025-09-05T15:09:00Z"
 }

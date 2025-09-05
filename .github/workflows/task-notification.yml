@@ -1,0 +1,40 @@
+name: Task Notification
+
+on:
+  push:
+    paths:
+      - 'management/todo/todo_tasks.json'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Send Slack Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": "📋 작업 목록이 업데이트되었습니다!",
+              "attachments": [{
+                "color": "good",
+                "fields": [{
+                  "title": "커밋 메시지",
+                  "value": "${{ github.event.head_commit.message }}",
+                  "short": false
+                }, {
+                  "title": "변경자",
+                  "value": "${{ github.actor }}",
+                  "short": true
+                }, {
+                  "title": "시간",
+                  "value": "${{ github.event.head_commit.timestamp }}",
+                  "short": true
+                }]
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
