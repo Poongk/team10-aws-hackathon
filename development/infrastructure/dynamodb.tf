@@ -129,3 +129,36 @@ resource "aws_dynamodb_table" "qr_codes" {
     Environment = var.environment
   }
 }
+# 6. 알림 테이블 (새로 추가)
+resource "aws_dynamodb_table" "notifications" {
+  name           = "${var.project_name}-notifications"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "notification_id"
+
+  attribute {
+    name = "notification_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "user_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "created_at"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name               = "UserIndex"
+    hash_key           = "user_id"
+    range_key          = "created_at"
+    projection_type    = "ALL"
+  }
+
+  tags = {
+    Name        = "GMP CheckMaster Notifications"
+    Environment = var.environment
+  }
+}

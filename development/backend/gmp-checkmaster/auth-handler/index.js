@@ -1,108 +1,184 @@
-const { successResponse, errorResponse } = require('../shared/response-utils');
+const AWS = require('aws-sdk');
+const jwt = require('jsonwebtoken');
 
-exports.handler = async (event) => {
-  try {
-    console.log('Auth Event:', JSON.stringify(event, null, 2));
-    
-    const path = event.path;
-    const method = event.httpMethod;
-    
-    if (path === '/auth/login' && method === 'POST') {
-      return await handleLogin(event);
-    }
-    
-    if (path === '/auth/logout' && method === 'POST') {
-      return await handleLogout(event);
-    }
-    
-    if (path === '/auth/verify' && method === 'GET') {
-      return await handleVerify(event);
-    }
-    
-    return errorResponse(404, 'Not Found');
-    
-  } catch (error) {
-    console.error('Auth Error:', error);
-    return errorResponse(500, 'Internal Server Error');
-  }
+const dynamodb = new AWS.DynamoDB.DocumentClient();
+const TABLE_NAME = process.env.DYNAMODB_TABLE;
+const JWT_SECRET = 'gmp-checkmaster-secret-key';
+
+// CORS 헤더
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
 };
 
-async function handleLogin(event) {
-  const data = JSON.parse(event.body);
-  const { user_id, password } = data;
-  
-  // DynamoDB 연동 시도
-  try {
-    const AWS = require('aws-sdk');
-    const dynamodb = new AWS.DynamoDB.DocumentClient({ region: 'us-east-1' });
+// 사용자 데이터 (실제로는 DB에서 조회)
+const users = {
+    'EMP001': { name: '김철수', type: 'worker' },
+    'EMP002': { name: '이영희', type: 'worker' },
+    'EMP003': { name: '박민수', type: 'worker' },
+    'EMP004': { name: '정수연', type: 'worker' },
+    'EMP005': { name: '최수진', type: 'worker' },
+    'admin': { name: '시스템 관리자', type: 'admin' }
+};
+
+exports.handler = async (event) => {
+    console.log('Event:', JSON.stringify(event, null, 2));
     
-    console.log('Trying DynamoDB with table:', process.env.USERS_TABLE);
+    try {
+        const { httpMethod, path } = event;
+        
+        // OPTIONS 요청 처리
+        if (httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: corsHeaders,
+                body: ''
+            };
+        }
+        
+        const body = JSON.parse(event.body || '{}');
+        
+        if (path === '/auth/worker' && httpMethod === 'POST') {
+            return await handleWorkerLogin(body);
+        }
+        
+        if (path === '/auth/admin' && httpMethod === 'POST') {
+            return await handleAdminLogin(body);
+        }
+        
+        return {
+            statusCode: 404,
+            headers: corsHeaders,
+            body: JSON.stringify({
+                success: false,
+                error: {
+                    code: 'NOT_FOUND',
+                    message: '요청한 엔드포인트를 찾을 수 없습니다'
+                }
+            })
+        };
+        
+    } catch (error) {
+        console.error('Error:', error);
+        return {
+            statusCode: 500,
+            headers: corsHeaders,
+            body: JSON.stringify({
+                success: false,
+                error: {
+                    code: 'INTERNAL_ERROR',
+                    message: '서버 내부 오류가 발생했습니다'
+                }
+            })
+        };
+    }
+};
+
+async function handleWorkerLogin(body) {
+    const { employee_id } = body;
     
-    const params = {
-      TableName: process.env.USERS_TABLE || 'gmp-checkmaster-users',
-      Key: { user_id: user_id }
-    };
-    
-    const result = await dynamodb.get(params).promise();
-    console.log('DynamoDB result:', result);
-    
-    if (result.Item && password === 'demo123') {
-      const user = result.Item;
-      const token = `demo-jwt-${user_id}-${Date.now()}`;
-      
-      return successResponse({
-        token,
-        user: {
-          id: user.user_id,
-          name: user.name,
-          role: user.role,
-          team: user.team
-        },
-        expires_in: 28800
-      }, 'Login successful (DynamoDB)');
+    if (!employee_id) {
+        return {
+            statusCode: 400,
+            headers: corsHeaders,
+            body: JSON.stringify({
+                success: false,
+                error: {
+                    code: 'MISSING_EMPLOYEE_ID',
+                    message: '사번을 입력해주세요'
+                }
+            })
+        };
     }
     
-  } catch (error) {
-    console.error('DynamoDB error:', error);
-  }
-  
-  // Mock 데이터 폴백
-  console.log('Using Mock data fallback');
-  const mockUsers = {
-    'worker1': { id: 'worker1', name: '김작업', role: 'worker', team: '생산팀A' },
-    'operator1': { id: 'operator1', name: '박운영', role: 'operator', team: '운영팀' },
-    'supervisor1': { id: 'supervisor1', name: '이책임', role: 'supervisor', team: '생산팀A' },
-    'admin1': { id: 'admin1', name: '최관리', role: 'admin', team: 'IT팀' },
-    'security1': { id: 'security1', name: '정보안', role: 'security', team: '보안팀' }
-  };
-  
-  const mockUser = mockUsers[user_id];
-  if (!mockUser || password !== 'demo123') {
-    return errorResponse(401, 'Invalid credentials');
-  }
-  
-  const token = `demo-jwt-${user_id}-${Date.now()}`;
-  return successResponse({
-    token,
-    user: mockUser,
-    expires_in: 28800
-  }, 'Login successful (Mock)');
+    const user = users[employee_id];
+    if (!user || user.type !== 'worker') {
+        return {
+            statusCode: 404,
+            headers: corsHeaders,
+            body: JSON.stringify({
+                success: false,
+                error: {
+                    code: 'USER_NOT_FOUND',
+                    message: '등록되지 않은 사번입니다'
+                }
+            })
+        };
+    }
+    
+    // JWT 토큰 생성
+    const token = jwt.sign(
+        { user_id: employee_id, user_type: 'worker' },
+        JWT_SECRET,
+        { expiresIn: '8h' }
+    );
+    
+    return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({
+            success: true,
+            data: {
+                user_id: employee_id,
+                name: user.name,
+                user_type: 'worker',
+                session_token: token
+            }
+        })
+    };
 }
 
-async function handleLogout(event) {
-  return successResponse({ message: 'Logged out successfully' }, 'Logout successful');
-}
-
-async function handleVerify(event) {
-  const token = event.headers.Authorization || event.headers.authorization;
-  
-  if (!token) {
-    return errorResponse(401, 'No token provided');
-  }
-  
-  if (token.startsWith('demo-jwt-')) {
-    return successResponse({ valid: true }, 'Token is valid');
-  }
-  
-  return errorResponse(401, 'Invalid token');
+async function handleAdminLogin(body) {
+    const { admin_id } = body;
+    
+    if (!admin_id) {
+        return {
+            statusCode: 400,
+            headers: corsHeaders,
+            body: JSON.stringify({
+                success: false,
+                error: {
+                    code: 'MISSING_ADMIN_ID',
+                    message: '관리자 ID를 입력해주세요'
+                }
+            })
+        };
+    }
+    
+    const user = users[admin_id];
+    if (!user || user.type !== 'admin') {
+        return {
+            statusCode: 404,
+            headers: corsHeaders,
+            body: JSON.stringify({
+                success: false,
+                error: {
+                    code: 'USER_NOT_FOUND',
+                    message: '등록되지 않은 관리자 ID입니다'
+                }
+            })
+        };
+    }
+    
+    // JWT 토큰 생성
+    const token = jwt.sign(
+        { user_id: admin_id, user_type: 'admin' },
+        JWT_SECRET,
+        { expiresIn: '8h' }
+    );
+    
+    return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({
+            success: true,
+            data: {
+                user_id: admin_id,
+                name: user.name,
+                user_type: 'admin',
+                session_token: token
+            }
+        })
+    };
 }

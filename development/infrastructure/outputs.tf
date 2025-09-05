@@ -51,5 +51,22 @@ output "dynamodb_tables" {
     checklist_records   = aws_dynamodb_table.checklist_records.name
     ai_judgments        = aws_dynamodb_table.ai_judgments.name
     qr_codes           = aws_dynamodb_table.qr_codes.name
+    notifications      = aws_dynamodb_table.notifications.name
   }
+}
+
+# HTTPS URL 추가
+output "https_website_url" {
+  description = "CloudFront HTTPS 웹사이트 URL"
+  value       = "https://${aws_cloudfront_distribution.hello_world.domain_name}"
+}
+
+output "cloudfront_domain" {
+  description = "CloudFront 도메인"
+  value       = aws_cloudfront_distribution.hello_world.domain_name
+}
+
+output "hello_world_https_url" {
+  description = "Hello World AI 분석기 HTTPS URL"
+  value       = "https://${aws_cloudfront_distribution.hello_world.domain_name}/hello-world/"
 }

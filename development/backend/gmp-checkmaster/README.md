@@ -1,95 +1,238 @@
-# GMP CheckMaster AI - 백엔드 (최종 확장 버전)
+# GMP CheckMaster API - API 명세서 기반 백엔드
+
+## 📋 개요
+제약업계 GMP 규정 준수를 위한 지능형 체크리스트 관리 시스템의 백엔드 API
+
+**API 명세서 기반으로 완전히 재구성된 버전**
+
+## 🏗️ 아키텍처
+
+### 📁 디렉토리 구조
+```
+gmp-checkmaster/
+├── auth-handler/              # 인증 관리
+├── checklist-handler/         # 체크리스트 관리
+├── ai-analysis-handler/       # AI 분석 (상처 분석)
+├── qr-handler/               # QR 코드 관리
+├── access-log-handler/       # 출입 로그 관리
+├── template.yaml             # SAM 템플릿
+├── test-api-spec.js          # API 테스트 스크립트
+└── build-and-deploy.sh       # 빌드 및 배포 스크립트
+```
+
+### 🔧 기술 스택
+- **Runtime**: Node.js 18.x
+- **Database**: DynamoDB (Single Table Design)
+- **Authentication**: JWT
+- **AI**: Amazon Bedrock (Claude-3 Sonnet)
+- **Deployment**: AWS SAM
+- **API**: REST API (API Gateway)
+
+## 🌐 API 엔드포인트
+
+### 🔐 인증
+- `POST /auth/worker` - 작업자 로그인
+- `POST /auth/admin` - 관리자 로그인
+
+### 📝 체크리스트
+- `POST /checklist` - 체크리스트 제출
+- `GET /checklist/{user_id}` - 사용자별 체크리스트 조회
+
+### 🤖 AI 분석
+- `POST /ai/analyze-wound` - 상처 분석
+
+### 📱 QR 코드
+- `POST /qr/verify` - QR 코드 검증
+- `PUT /qr/expire` - QR 코드 만료 처리
+
+### 📊 출입 로그
+- `POST /access-log` - 출입 로그 기록
+- `GET /access-log` - 출입 로그 조회
 
 ## 🚀 빠른 시작
 
-### 로컬 개발 (SAM Local)
+### 1. 의존성 설치
 ```bash
-# SAM Local API 시작
-sam local start-api --port 3001
-
-# 개별 함수 테스트
-sam local invoke ActionHandler --event events/action-list.json
+# 각 핸들러별 의존성 설치
+cd auth-handler && npm install && cd ..
+cd checklist-handler && npm install && cd ..
+cd ai-analysis-handler && npm install && cd ..
+cd qr-handler && npm install && cd ..
+cd access-log-handler && npm install && cd ..
 ```
 
-### 클라우드 배포
+### 2. 자동 빌드 및 배포
 ```bash
-# 빌드
+./build-and-deploy.sh
+```
+
+### 3. 수동 배포
+```bash
+# SAM 빌드
 sam build
 
-# 배포
+# SAM 배포
 sam deploy --guided
 ```
 
-## 📋 API 엔드포인트 (총 26개)
+## 🧪 테스트
 
-### 인증 (AuthHandler) - 3개
-- `POST /auth/login` - 로그인
-- `POST /auth/logout` - 로그아웃
-- `GET /auth/verify` - 토큰 검증
-
-### 체크리스트 (ChecklistHandler) - 6개  
-- `GET /checklists/templates` - 템플릿 조회
-- `POST /checklists/submit` - 체크리스트 제출
-- `GET /checklists/records` - 기록 조회
-- `PUT /checklists/records/{record_id}` - 체크리스트 수정 (5분 내)
-- `POST /checklists/modification-request` - 수정 요청 (5분 후)
-- `POST /checklists/emergency-review` - 긴급 재검토 요청
-
-### AI 판정 (AIJudgmentHandler) - 2개
-- `POST /ai/judge` - 건강상태 AI 판정
-- `GET /ai/judgment/{record_id}` - 판정 결과 조회
-
-### QR 코드 (QRHandler) - 2개
-- `POST /qr/generate` - QR 코드 생성
-- `POST /qr/verify` - QR 코드 검증
-
-### 대시보드 (DashboardHandler) - 4개
-- `GET /dashboard/stats` - 통계 조회
-- `GET /dashboard/reports` - 리포트 조회
-- `GET /dashboard/status` - 실시간 현황 조회 (운영자용)
-- `GET /dashboard/team/{team_id}` - 팀 현황 조회 (책임자용)
-
-### 배정 관리 (AssignmentHandler) - 2개
-- `GET /assignment/list` - 배정 목록 조회
-- `POST /assignment/create` - 배정 생성
-
-### 알림 (NotificationHandler) - 1개
-- `POST /notification/send` - 알림 발송
-
-### 관리자 (AdminHandler) - 3개
-- `POST /admin/templates` - 템플릿 생성
-- `PUT /admin/qr-validity/template/{template_id}` - QR 유효시간 설정
-- `PUT /operator/qr-validity/daily` - QR 유효시간 당일 조정
-
-### 조치 관리 (ActionHandler) - 4개 🆕
-- `GET /actions/list` - 조치 목록 조회
-- `PUT /actions/{record_id}/status` - 조치 상태 업데이트
-- `POST /actions/{record_id}/complete` - 조치 완료 처리
-- `GET /actions/status/{record_id}` - 조치 진행 상황 조회
-
-## 📁 프로젝트 구조
-```
-├── template.yaml              # SAM 템플릿 (9개 핸들러)
-├── shared/                    # 공통 유틸리티
-├── auth-handler/              # 인증 API (3개)
-├── checklist-handler/         # 체크리스트 API (6개)
-├── ai-judgment-handler/       # AI 판정 API (2개)
-├── qr-handler/                # QR 코드 API (2개)
-├── dashboard-handler/         # 대시보드 API (4개)
-├── assignment-handler/        # 배정 관리 API (2개)
-├── notification-handler/      # 알림 API (1개)
-├── admin-handler/             # 관리자 API (3개)
-├── action-handler/            # 조치 관리 API (4개) 🆕
-└── events/                    # 테스트 이벤트 (13개)
+### API 테스트 실행
+```bash
+# API Gateway URL을 test-api-spec.js에 설정 후
+node test-api-spec.js
 ```
 
-## 🆕 새로 추가된 조치 관리 기능
-1. **조치 목록 관리** - 부적합자 조치 대기 목록
-2. **조치 상태 추적** - pending → in_progress → completed
-3. **조치 완료 처리** - 최종 완료 및 결과 기록
-4. **진행 상황 모니터링** - 5단계 워크플로우 추적
+### 테스트 시나리오
+1. ✅ 작업자 로그인 (`EMP001`)
+2. ✅ 관리자 로그인 (`admin`)
+3. ✅ 체크리스트 제출 (적합/부적합)
+4. ✅ AI 상처 분석
+5. ✅ QR 코드 검증
+6. ✅ 체크리스트 조회
+7. ✅ 출입 로그 조회
 
-## 📊 API 확장 현황
-- **최종**: 9개 핸들러, 26개 API
-- **와이어프레임 매칭률**: **100%** 🎉
-- **테스트 커버리지**: **100%** (26/26 API)
+## 📊 데이터 모델
+
+### DynamoDB Single Table Design
+```
+PK                    SK                     데이터
+USER#EMP001          CHECK#2025-09-06T...   체크리스트 기록
+ANALYSIS#EMP001      WOUND#2025-09-06T...   AI 분석 결과
+ACCESS_LOG#2025-09-06 2025-09-06T...#EMP001 출입 로그
+```
+
+### 주요 속성
+- `pk`: Partition Key
+- `sk`: Sort Key  
+- `ttl`: Time To Live (자동 삭제)
+- `created_at`: 생성 시간
+- `user_id`: 사용자 ID
+
+## 🔒 보안
+
+### JWT 인증
+- **Secret**: `gmp-checkmaster-secret-key`
+- **만료시간**: 8시간
+- **토큰 형식**: `Bearer {token}`
+
+### 권한 관리
+- **작업자**: 본인 데이터만 접근
+- **관리자**: 모든 데이터 접근
+
+### CORS 설정
+```javascript
+{
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+}
+```
+
+## 🤖 AI 분석
+
+### Bedrock Claude Vision
+- **모델**: `anthropic.claude-3-sonnet-20240229-v1:0`
+- **기능**: 상처 이미지 분석
+- **출력**: 적합/부적합 판정 + 신뢰도
+
+### 분석 기준
+- 상처 크기 (small/medium/large)
+- 염증 여부 (true/false)
+- 출혈 여부 (true/false)
+- 감염 위험도 (low/medium/high)
+
+### 폴백 시스템
+Bedrock 호출 실패 시 기본 적합 판정 반환
+
+## 📱 QR 코드
+
+### 생성 로직
+```javascript
+const qrData = {
+    user_id: 'EMP001',
+    timestamp: '2025-09-06T08:15:00Z',
+    expire_time: '2025-09-06T08:45:00Z'
+};
+const qrCode = Buffer.from(JSON.stringify(qrData)).toString('base64');
+```
+
+### 만료 시간
+- **기본**: 30분
+- **시연용**: 수동 만료 가능
+
+## 🔔 알림 시스템
+
+### Slack 연동
+- **Webhook URL**: 환경변수 `SLACK_WEBHOOK_URL`
+- **트리거**: 부적합 체크리스트 제출 시
+- **내용**: 사용자 ID, 부적합 사유, 시간
+
+## 📈 모니터링
+
+### CloudWatch 로그
+- 각 Lambda 함수별 로그 그룹
+- 에러 및 성능 모니터링
+
+### DynamoDB 메트릭
+- 읽기/쓰기 용량 모니터링
+- TTL 기반 자동 데이터 정리
+
+## 🛠️ 개발 가이드
+
+### 로컬 개발
+```bash
+# SAM 로컬 시작
+sam local start-api
+
+# 로컬 테스트
+sam local invoke AuthHandler -e events/auth-event.json
+```
+
+### 환경 변수
+```yaml
+Environment:
+  Variables:
+    NODE_ENV: development
+    CORS_ORIGIN: "*"
+    DYNAMODB_TABLE: !Ref GMPTable
+    SLACK_WEBHOOK_URL: "https://hooks.slack.com/..."
+```
+
+### 에러 처리
+- 표준화된 에러 응답 형식
+- 적절한 HTTP 상태 코드
+- 상세한 에러 로깅
+
+## 📋 API 명세서 준수
+
+이 백엔드는 `planning/design/mvp/architecture/API명세서.md`를 100% 준수합니다:
+
+✅ **모든 엔드포인트 구현**  
+✅ **요청/응답 형식 일치**  
+✅ **에러 코드 표준화**  
+✅ **인증 방식 통일**  
+✅ **데이터 모델 일치**
+
+## 🎯 해커톤 데모
+
+### 시연 시나리오
+1. **작업자 로그인** → JWT 토큰 발급
+2. **체크리스트 작성** → 적합/부적합 판정
+3. **상처 사진 분석** → AI 기반 판정
+4. **QR 코드 생성** → 30분 유효
+5. **관리자 QR 스캔** → 출입 허용/거부
+6. **출입 로그 확인** → 실시간 모니터링
+
+### 핵심 기능
+- 🔐 **실제 JWT 인증**
+- 🤖 **Bedrock AI 분석**
+- 📱 **QR 코드 시스템**
+- 🔔 **Slack 실시간 알림**
+- 📊 **완전한 로그 시스템**
+
+---
+
+**개발팀**: drug qrew (백승재, 풍기덕)  
+**해커톤**: AWS 해커톤 2025.09.05-06  
+**완성도**: API 명세서 100% 구현 완료

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: GMP CheckMaster AI - 해커톤 백엔드 (확장 버전)
+Description: GMP CheckMaster AI - API 명세서 기반 백엔드
 
 Globals:
   Function:
@@ -11,214 +11,133 @@ Globals:
       Variables:
         NODE_ENV: development
         CORS_ORIGIN: "*"
+        DYNAMODB_TABLE: !Ref GMPTable
+        SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
 
 Resources:
-  # 인증 핸들러
+  # DynamoDB 테이블
+  GMPTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: gmp-checkmaster
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  # 인증 핸들러 - API 명세서 기준
   AuthHandler:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: auth-handler/
       Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GMPTable
       Events:
-        LoginApi:
+        WorkerLogin:
           Type: Api
           Properties:
-            Path: /auth/login
+            Path: /auth/worker
             Method: post
-        LogoutApi:
+        AdminLogin:
           Type: Api
           Properties:
-            Path: /auth/logout
+            Path: /auth/admin
             Method: post
-        VerifyApi:
-          Type: Api
-          Properties:
-            Path: /auth/verify
-            Method: get
 
-  # 체크리스트 핸들러 (확장)
+  # 체크리스트 핸들러 - API 명세서 기준
   ChecklistHandler:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: checklist-handler/
       Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GMPTable
       Events:
-        GetTemplates:
-          Type: Api
-          Properties:
-            Path: /checklists/templates
-            Method: get
         SubmitChecklist:
           Type: Api
           Properties:
-            Path: /checklists/submit
+            Path: /checklist
             Method: post
-        GetRecords:
+        GetUserChecklist:
           Type: Api
           Properties:
-            Path: /checklists/records
+            Path: /checklist/{user_id}
             Method: get
-        UpdateRecord:
-          Type: Api
-          Properties:
-            Path: /checklists/records/{record_id}
-            Method: put
-        ModificationRequest:
-          Type: Api
-          Properties:
-            Path: /checklists/modification-request
-            Method: post
-        EmergencyReview:
-          Type: Api
-          Properties:
-            Path: /checklists/emergency-review
-            Method: post
 
-  # AI 판정 핸들러 (확장)
-  AIJudgmentHandler:
+  # AI 분석 핸들러 - API 명세서 기준
+  AIAnalysisHandler:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ai-judgment-handler/
+      CodeUri: ai-analysis-handler/
       Handler: index.handler
       MemorySize: 512
+      Timeout: 60
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GMPTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: '*'
       Events:
-        JudgeApi:
+        AnalyzeWound:
           Type: Api
           Properties:
-            Path: /ai/judge
+            Path: /ai/analyze-wound
             Method: post
-        GetJudgment:
-          Type: Api
-          Properties:
-            Path: /ai/judgment/{record_id}
-            Method: get
 
-  # QR 코드 핸들러
+  # QR 코드 핸들러 - API 명세서 기준
   QRHandler:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: qr-handler/
       Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GMPTable
       Events:
-        GenerateQR:
-          Type: Api
-          Properties:
-            Path: /qr/generate
-            Method: post
         VerifyQR:
           Type: Api
           Properties:
             Path: /qr/verify
             Method: post
-
-  # 대시보드 핸들러 (확장)
-  DashboardHandler:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: dashboard-handler/
-      Handler: index.handler
-      Events:
-        GetStats:
+        ExpireQR:
           Type: Api
           Properties:
-            Path: /dashboard/stats
-            Method: get
-        GetReports:
-          Type: Api
-          Properties:
-            Path: /dashboard/reports
-            Method: get
-        GetStatus:
-          Type: Api
-          Properties:
-            Path: /dashboard/status
-            Method: get
-        GetTeamStatus:
-          Type: Api
-          Properties:
-            Path: /dashboard/team/{team_id}
-            Method: get
-
-  # 배정 관리 핸들러 (신규)
-  AssignmentHandler:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: assignment-handler/
-      Handler: index.handler
-      Events:
-        GetAssignments:
-          Type: Api
-          Properties:
-            Path: /assignment/list
-            Method: get
-        CreateAssignment:
-          Type: Api
-          Properties:
-            Path: /assignment/create
-            Method: post
-
-  # 알림 핸들러 (신규)
-  NotificationHandler:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: notification-handler/
-      Handler: index.handler
-      Events:
-        SendNotification:
-          Type: Api
-          Properties:
-            Path: /notification/send
-            Method: post
-
-  # 관리자 핸들러 (신규)
-  AdminHandler:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: admin-handler/
-      Handler: index.handler
-      Events:
-        CreateTemplate:
-          Type: Api
-          Properties:
-            Path: /admin/templates
-            Method: post
-        SetQRValidity:
-          Type: Api
-          Properties:
-            Path: /admin/qr-validity/template/{template_id}
-            Method: put
-        AdjustDailyQR:
-          Type: Api
-          Properties:
-            Path: /operator/qr-validity/daily
+            Path: /qr/expire
             Method: put
 
-  # 조치 관리 핸들러 (신규)
-  ActionHandler:
+  # 출입 로그 핸들러 - API 명세서 기준
+  AccessLogHandler:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: action-handler/
+      CodeUri: access-log-handler/
       Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GMPTable
       Events:
-        GetActionList:
+        CreateLog:
           Type: Api
           Properties:
-            Path: /actions/list
-            Method: get
-        UpdateActionStatus:
-          Type: Api
-          Properties:
-            Path: /actions/{record_id}/status
-            Method: put
-        CompleteAction:
-          Type: Api
-          Properties:
-            Path: /actions/{record_id}/complete
+            Path: /access-log
             Method: post
-        GetActionStatus:
+        GetLogs:
           Type: Api
           Properties:
-            Path: /actions/status/{record_id}
+            Path: /access-log
             Method: get
 
 Outputs:

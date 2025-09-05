@@ -19,6 +19,7 @@ resource "aws_lambda_function" "final_gmp_api" {
   environment {
     variables = {
       NODE_ENV = var.environment
+      SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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"
     }
   }
 }
@@ -95,4 +96,25 @@ resource "aws_api_gateway_deployment" "final_gmp_api_deployment" {
 
   rest_api_id = aws_api_gateway_rest_api.final_gmp_api.id
   stage_name  = var.environment
+}
+resource "aws_iam_role_policy" "lambda_bedrock_policy" {
+  name = "${var.project_name}-lambda-bedrock-policy"
+  role = aws_iam_role.lambda_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = [
+          "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0",
+          "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-haiku-20240307-v1:0"
+        ]
+      }
+    ]
+  })
 }
