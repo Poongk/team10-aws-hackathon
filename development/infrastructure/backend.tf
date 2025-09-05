@@ -24,6 +24,39 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   role       = aws_iam_role.lambda_execution_role.name
 }
 
+# DynamoDB 접근 정책
+resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
+  name = "${var.project_name}-lambda-dynamodb-policy"
+  role = aws_iam_role.lambda_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = [
+          aws_dynamodb_table.users.arn,
+          aws_dynamodb_table.checklist_templates.arn,
+          aws_dynamodb_table.checklist_records.arn,
+          aws_dynamodb_table.ai_judgments.arn,
+          aws_dynamodb_table.qr_codes.arn,
+          "${aws_dynamodb_table.checklist_records.arn}/index/*",
+          "${aws_dynamodb_table.ai_judgments.arn}/index/*",
+          "${aws_dynamodb_table.qr_codes.arn}/index/*"
+        ]
+      }
+    ]
+  })
+}
+
 # 라우터 Lambda 함수 ZIP 파일 생성 (모든 핸들러 포함)
 data "archive_file" "router_zip" {
   type        = "zip"
@@ -51,8 +84,13 @@ resource "aws_lambda_function" "gmp_router" {
   
   environment {
     variables = {
-      NODE_ENV    = var.environment
-      CORS_ORIGIN = "*"
+      NODE_ENV                    = var.environment
+      CORS_ORIGIN                = "*"
+      USERS_TABLE                = aws_dynamodb_table.users.name
+      CHECKLIST_TEMPLATES_TABLE  = aws_dynamodb_table.checklist_templates.name
+      CHECKLIST_RECORDS_TABLE    = aws_dynamodb_table.checklist_records.name
+      AI_JUDGMENTS_TABLE         = aws_dynamodb_table.ai_judgments.name
+      QR_CODES_TABLE            = aws_dynamodb_table.qr_codes.name
     }
   }
 }
