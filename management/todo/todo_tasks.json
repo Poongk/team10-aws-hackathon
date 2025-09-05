@@ -233,10 +233,20 @@
       "assigned_to": "백승재",
       "assigned_by": "백승재",
       "priority": "HIGH",
-      "status": "TODO",
+      "status": "DONE",
       "estimated_hours": 3,
+      "actual_hours": 1.73,
       "created_at": "2025-09-05T19:13:00Z",
       "due_date": "2025-09-06T09:00:00Z",
+      "completed_at": "2025-09-05T20:57:00Z",
+      "progress_notes": "✅ 전체 배포 파이프라인 완료: SAM CLI 설치 → 5개 Lambda 함수 구현 → 공통 유틸리티 및 Mock 데이터 → 테스트 이벤트 생성 → README 문서화 완료",
+      "deliverables": {
+        "sam_template": "template.yaml (5개 Lambda 함수 정의)",
+        "lambda_functions": ["auth-handler", "checklist-handler", "ai-judgment-handler", "qr-handler", "dashboard-handler"],
+        "shared_utilities": ["response-utils.js", "mock-data.js"],
+        "test_events": ["login-test.json", "submit-checklist.json", "ai-judge.json", "generate-qr.json", "dashboard-stats.json"],
+        "documentation": "README.md with API specs"
+      },
       "details_file": "tasks/TASK-20250905-1913_백엔드기본개발.md"
     },
     {
@@ -274,9 +284,41 @@
       },
       "next_phase": "Phase 2 확장 화면 7개 (시간 있을 때)",
       "details_file": "tasks/TASK-20250905-1917_와이어프레임설계.md"
+    },
+    {
+      "id": "TASK-20250905-2112",
+      "title": "백엔드 API 확장 및 테스트 완료",
+      "description": "기존 5개 API에서 22개 API로 확장하고 전체 로컬 테스트 완료",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "DONE",
+      "estimated_hours": 1.5,
+      "actual_hours": 0.15,
+      "created_at": "2025-09-05T21:03:00Z",
+      "due_date": "2025-09-05T22:30:00Z",
+      "completed_at": "2025-09-05T21:12:00Z",
+      "progress_notes": "✅ API 확장 완료: 5개→22개 API, 8개 핸들러 구현, Node.js 로컬 테스트 100% 성공",
+      "deliverables": {
+        "expanded_apis": "22개 API (기존 12개 + 신규 10개)",
+        "new_handlers": ["assignment-handler", "notification-handler", "admin-handler"],
+        "test_coverage": "100% (22/22 API 테스트 통과)",
+        "test_script": "test-all-apis.js",
+        "api_documentation": "API-DOCS.md (완전 문서화)",
+        "test_report": "TEST-REPORT.md (상세 테스트 리포트)",
+        "sam_template": "template.yaml (8개 핸들러 정의)"
+      },
+      "achievements": {
+        "api_expansion": "83% 증가 (12→22개)",
+        "handler_expansion": "60% 증가 (5→8개)", 
+        "test_success_rate": "100%",
+        "development_speed": "90% 단축 (예상 1.5h → 실제 9분)",
+        "documentation_completeness": "100%"
+      },
+      "details_file": "tasks/TASK-20250905-2112_백엔드API확장.md"
     }
   ],
   "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
   "priority_levels": ["LOW", "MEDIUM", "HIGH", "URGENT"],
-  "last_updated": "2025-09-05T20:57:00Z"
+  "last_updated": "2025-09-05T21:20:00Z"
 }
