@@ -1,158 +1,136 @@
 {
-    "project": "GMP CheckMaster AI",
-    "team_members": [
-        {
-            "id": "member1",
-            "name": "\ubc31\uc2b9\uc7ac",
-            "role": "\ubc31\uc5d4\ub4dc/AI \uac1c\ubc1c",
-            "skills": [
-                "AWS",
-                "Lambda",
-                "DynamoDB",
-                "Amazon Q Developer",
-                "Bedrock",
-                "SAP"
-            ],
-            "email": "sjbaek@example.com"
-        },
-        {
-            "id": "member2",
-            "name": "\ud48d\uae30\ub355",
-            "role": "\ud504\ub860\ud2b8\uc5d4\ub4dc/\ubc30\ud3ec",
-            "skills": [
-                "React",
-                "UI/UX",
-                "Amplify",
-                "CloudFront",
-                "SAP"
-            ],
-            "email": "pgdeok@example.com"
-        }
-    ],
-    "tasks": [
-        {
-            "id": "TASK-001",
-            "title": "\uc694\uad6c\uc0ac\ud56d \uc815\uc758\uc11c \uc791\uc131 \uc644\ub8cc",
-            "description": "\uc0ac\uc6a9\uc790 \uc2a4\ud1a0\ub9ac \uae30\ubc18 \uae30\ub2a5/\ube44\uae30\ub2a5 \uc694\uad6c\uc0ac\ud56d \uc815\uc758",
-            "assigned_to": "\ubc31\uc2b9\uc7ac",
-            "assigned_by": "\ubc31\uc2b9\uc7ac",
-            "priority": "HIGH",
-            "status": "DONE",
-            "estimated_hours": 1,
-            "created_at": "2025-09-05T13:40:00Z",
-            "due_date": "2025-09-05T14:30:00Z",
-            "completed_at": "2025-09-05T14:47:00Z",
-            "details_file": "tasks/TASK-001_\uc694\uad6c\uc0ac\ud56d\uc815\uc758\uc11c.md"
-        },
-        {
-            "id": "TASK-002",
-            "title": "Git \uc800\uc7a5\uc18c \uc124\uc815 \ubc0f \ucd08\uae30 \uad6c\uc870 \uc0dd\uc131",
-            "description": "GitHub \uc800\uc7a5\uc18c \uc0dd\uc131, \ube0c\ub79c\uce58 \uc804\ub7b5, \ud3f4\ub354 \uad6c\uc870 \uc124\uc815",
-            "assigned_to": "\ud48d\uae30\ub355",
-            "assigned_by": "\ubc31\uc2b9\uc7ac",
-            "priority": "HIGH",
-            "status": "DONE",
-            "estimated_hours": 0.5,
-            "created_at": "2025-09-05T13:40:00Z",
-            "due_date": "2025-09-05T14:00:00Z",
-            "completed_at": "2025-09-05T13:48:00Z",
-            "github_url": "https://github.com/Poongk/team10-aws-hackathon",
-            "details_file": "tasks/TASK-002_Git\uc800\uc7a5\uc18c\uc124\uc815.md"
-        },
-        {
-            "id": "TASK-005",
-            "title": "\ud604\uc7ac \ud504\ub85c\uc81d\ud2b8 \ub0b4\uc6a9 GitHub \uc5c5\ub85c\ub4dc",
-            "description": "\ub85c\uceec \uc791\uc5c5 \ub0b4\uc6a9\uc744 GitHub \uc800\uc7a5\uc18c\uc5d0 \uc5c5\ub85c\ub4dc \ubc0f \uad6c\uc870 \uc815\ub9ac",
-            "assigned_to": "\ubc31\uc2b9\uc7ac",
-            "assigned_by": "\ubc31\uc2b9\uc7ac",
-            "priority": "HIGH",
-            "status": "DONE",
-            "estimated_hours": 0.5,
-            "created_at": "2025-09-05T13:50:00Z",
-            "due_date": "2025-09-05T14:30:00Z",
-            "completed_at": "2025-09-05T13:56:00Z",
-            "github_commit": "d006499",
-            "details_file": "tasks/TASK-005_GitHub\uc5c5\ub85c\ub4dc.md"
-        },
-        {
-            "id": "TASK-006",
-            "title": "Slack \uc5f0\ub3d9 \uc124\uc815",
-            "description": "\uc791\uc5c5 \ud560\ub2f9/\uc644\ub8cc \uc2dc Slack \uc790\ub3d9 \uc54c\ub9bc \uae30\ub2a5 \uad6c\ud604",
-            "assigned_to": "\ud48d\uae30\ub355",
-            "assigned_by": "\ubc31\uc2b9\uc7ac",
-            "priority": "MEDIUM",
-            "status": "DONE",
-            "completed_at": "2025-09-05T15:19:00Z",
-            "estimated_hours": 0.5,
-            "created_at": "2025-09-05T13:59:00Z",
-            "due_date": "2025-09-05T15:30:00Z",
-            "details_file": "tasks/TASK-006_Slack\uc5f0\ub3d9.md"
-        },
-        {
-            "id": "TASK-007",
-            "title": "\uc0ac\uc6a9\uc790 \uc2a4\ud1a0\ub9ac \uc815\uc758 \uc644\ub8cc",
-            "description": "\uccb4\ud06c\ub9ac\uc2a4\ud2b8 \uc720\ud615\ubcc4 \ubc0f \uc5ed\ud560\ubcc4 \uc0c1\uc138 \uc0ac\uc6a9\uc790 \uc2a4\ud1a0\ub9ac \uc791\uc131",
-            "assigned_to": "\ubc31\uc2b9\uc7ac",
-            "assigned_by": "\ubc31\uc2b9\uc7ac",
-            "priority": "HIGH",
-            "status": "IN_PROGRESS",
-            "estimated_hours": 1.5,
-            "created_at": "2025-09-05T15:28:00Z",
-            "due_date": "2025-09-05T16:30:00Z",
-            "details_file": "tasks/TASK-007_\uc0ac\uc6a9\uc790\uc2a4\ud1a0\ub9ac\uc815\uc758.md"
-        },
-        {
-            "id": "TASK-008",
-            "title": "\uc791\uc5c5\uc6d0 \uc77c\uc77c \uc704\uc0dd\uc0c1\ud0dc \uc810\uac80\ud45c \ubd84\uc11d",
-            "description": "\ucd9c\uc785\ud1b5\uc81c\ud615 \uccb4\ud06c\ub9ac\uc2a4\ud2b8\uc758 \ud575\uc2ec\uc778 \uc704\uc0dd\uc0c1\ud0dc \uc810\uac80\ud45c \uc0c1\uc138 \ubd84\uc11d \ubc0f \uc124\uacc4",
-            "assigned_to": "\ubc31\uc2b9\uc7ac",
-            "assigned_by": "\ubc31\uc2b9\uc7ac",
-            "priority": "HIGH",
-            "status": "TODO",
-            "estimated_hours": 1,
-            "created_at": "2025-09-05T15:47:00Z",
-            "due_date": "2025-09-05T16:47:00Z",
-            "details_file": "tasks/TASK-008_\uc704\uc0dd\uc0c1\ud0dc\uc810\uac80\ud45c\ubd84\uc11d.md"
-        },
-        {
-            "id": "TASK-009",
-            "title": "GMP \uc6b4\uc601\uc77c\uc9c0 \ub370\uc774\ud130 \ubd84\uc11d \ubc0f \uad6c\uc870\ud654",
-            "description": "\uacf5\uc870\uae30 \uc6b4\uc601\uc77c\uc9c0, \ubc29\uc11c(\ud22c\uc57d\ud568, \uc950\ub36b) \uad00\ub9ac\uc77c\uc9c0\ub97c Q Developer\uac00 \ud65c\uc6a9\ud560 \uc218 \uc788\ub294 \ub370\uc774\ud130 \ud615\ud0dc\ub85c \ubd84\uc11d \ubc0f \ubcc0\ud658",
-            "assigned_to": "\ud48d\uae30\ub355",
-            "assigned_by": "\ud48d\uae30\ub355",
-            "priority": "HIGH",
-            "status": "TODO",
-            "estimated_hours": 2,
-            "created_at": "2025-09-05T15:50:00Z",
-            "due_date": "2025-09-05T17:50:00Z",
-            "details_file": "tasks/TASK-009_GMP\ub370\uc774\ud130\ubd84\uc11d.md"
-        },
-        {
-            "id": "TASK-010",
-            "title": "분석 자료 및 기준 재검토",
-            "description": "완성된 분석 자료와 기준 문서들의 정확성, 일관성, 완성도를 상호 검토하여 품질 보증",
-            "assigned_to": "백승재",
-            "assigned_by": "풍기덕",
-            "priority": "HIGH",
-            "status": "TODO",
-            "estimated_hours": 1,
-            "created_at": "2025-09-05T16:33:00Z",
-            "due_date": "2025-09-05T18:00:00Z",
-            "details_file": "tasks/TASK-010_분석자료재검토.md"
-        }
-    ],
-    "task_status_options": [
-        "TODO",
-        "IN_PROGRESS",
-        "REVIEW",
-        "DONE",
-        "BLOCKED"
-    ],
-    "priority_levels": [
-        "LOW",
-        "MEDIUM",
-        "HIGH",
-        "URGENT"
-    ],
-    "last_updated": "2025-09-05T16:33:00Z"
+  "project": "GMP CheckMaster AI",
+  "team_members": [
+    {
+      "id": "member1",
+      "name": "백승재",
+      "role": "백엔드/AI 개발",
+      "skills": ["AWS", "Lambda", "DynamoDB", "Amazon Q Developer", "Bedrock", "SAP"],
+      "email": "sjbaek@example.com"
+    },
+    {
+      "id": "member2", 
+      "name": "풍기덕",
+      "role": "프론트엔드/배포",
+      "skills": ["React", "UI/UX", "Amplify", "CloudFront", "SAP"],
+      "email": "pgdeok@example.com"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "title": "요구사항 정의서 작성 완료",
+      "description": "사용자 스토리 기반 기능/비기능 요구사항 정의",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "DONE",
+      "estimated_hours": 1,
+      "created_at": "2025-09-05T13:40:00Z",
+      "due_date": "2025-09-05T14:30:00Z",
+      "completed_at": "2025-09-05T14:47:00Z",
+      "details_file": "tasks/TASK-001_요구사항정의서.md"
+    },
+    {
+      "id": "TASK-002",
+      "title": "Git 저장소 설정 및 초기 구조 생성",
+      "description": "GitHub 저장소 생성, 브랜치 전략, 폴더 구조 설정",
+      "assigned_to": "풍기덕",
+      "assigned_by": "백승재", 
+      "priority": "HIGH",
+      "status": "DONE",
+      "estimated_hours": 0.5,
+      "created_at": "2025-09-05T13:40:00Z",
+      "due_date": "2025-09-05T14:00:00Z",
+      "completed_at": "2025-09-05T13:48:00Z",
+      "github_url": "https://github.com/Poongk/team10-aws-hackathon",
+      "details_file": "tasks/TASK-002_Git저장소설정.md"
+    },
+    {
+      "id": "TASK-005",
+      "title": "현재 프로젝트 내용 GitHub 업로드",
+      "description": "로컬 작업 내용을 GitHub 저장소에 업로드 및 구조 정리",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "DONE",
+      "estimated_hours": 0.5,
+      "created_at": "2025-09-05T13:50:00Z",
+      "due_date": "2025-09-05T14:30:00Z",
+      "completed_at": "2025-09-05T13:56:00Z",
+      "github_commit": "d006499",
+      "details_file": "tasks/TASK-005_GitHub업로드.md"
+    },
+    {
+      "id": "TASK-006",
+      "title": "Slack 연동 설정",
+      "description": "작업 할당/완료 시 Slack 자동 알림 기능 구현",
+      "assigned_to": "풍기덕",
+      "assigned_by": "백승재",
+      "priority": "MEDIUM",
+      "status": "DONE",
+      "completed_at": "2025-09-05T15:19:00Z",
+      "estimated_hours": 0.5,
+      "created_at": "2025-09-05T13:59:00Z",
+      "due_date": "2025-09-05T15:30:00Z",
+      "details_file": "tasks/TASK-006_Slack연동.md"
+    },
+    {
+      "id": "TASK-007",
+      "title": "사용자 스토리 정의 완료",
+      "description": "체크리스트 유형별 및 역할별 상세 사용자 스토리 작성",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "DONE",
+      "completed_at": "2025-09-05T16:19:00Z",
+      "estimated_hours": 1.5,
+      "created_at": "2025-09-05T15:28:00Z",
+      "due_date": "2025-09-05T16:30:00Z",
+      "details_file": "tasks/TASK-007_사용자스토리정의.md"
+    },
+    {
+      "id": "TASK-008",
+      "title": "작업원 일일 위생상태 점검표 분석",
+      "description": "출입통제형 체크리스트의 핵심인 위생상태 점검표 상세 분석 및 설계",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "DONE",
+      "completed_at": "2025-09-05T16:19:00Z",
+      "estimated_hours": 1,
+      "created_at": "2025-09-05T15:47:00Z",
+      "due_date": "2025-09-05T16:47:00Z",
+      "details_file": "tasks/TASK-008_위생상태점검표분석.md"
+    },
+    {
+      "id": "TASK-20250905-1628",
+      "title": "사용자 스토리 정리 및 완성",
+      "description": "실제 체크리스트 분석 결과를 바탕으로 구체적이고 실용적인 사용자 스토리 작성",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH", 
+      "status": "TODO",
+      "estimated_hours": 1.5,
+      "created_at": "2025-09-05T16:28:00Z",
+      "due_date": "2025-09-05T17:58:00Z",
+      "details_file": "tasks/TASK-20250905-1628_사용자스토리정리.md"
+    },
+    {
+      "id": "TASK-010",
+      "title": "분석 자료 및 기준 재검토",
+      "description": "완성된 분석 자료와 기준 문서들의 정확성, 일관성, 완성도를 상호 검토하여 품질 보증",
+      "assigned_to": "백승재",
+      "assigned_by": "풍기덕",
+      "priority": "HIGH",
+      "status": "TODO",
+      "estimated_hours": 1,
+      "created_at": "2025-09-05T16:33:00Z",
+      "due_date": "2025-09-05T18:00:00Z",
+      "details_file": "tasks/TASK-010_분석자료재검토.md"
+    }
+  ],
+  "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
+  "priority_levels": ["LOW", "MEDIUM", "HIGH", "URGENT"],
+  "last_updated": "2025-09-05T16:33:00Z"
 }
