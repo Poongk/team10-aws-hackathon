@@ -179,7 +179,89 @@ POST /checklist/submit
 }
 ```
 
-### 2.3 체크리스트 기록 조회
+### 2.4 체크리스트 수정 (5분 내)
+```http
+PUT /checklist/records/{record_id}
+```
+
+**요청**
+```json
+{
+  "responses": [
+    {
+      "item_id": "item_001", 
+      "value": true
+    }
+  ],
+  "notes": "복장을 정리했습니다"
+}
+```
+
+**응답**
+```json
+{
+  "success": true,
+  "data": {
+    "record_id": "record_20250905_001",
+    "status": "updated",
+    "updated_at": "2025-09-05T18:15:00Z",
+    "modification_count": 1,
+    "ai_judgment_pending": true
+  }
+}
+```
+
+### 2.5 수정 요청 (5분 후)
+```http
+POST /checklist/modification-request
+```
+
+**요청**
+```json
+{
+  "record_id": "record_20250905_001",
+  "reason": "복장을 정리했습니다",
+  "requested_by": "worker1"
+}
+```
+
+**응답**
+```json
+{
+  "success": true,
+  "data": {
+    "request_id": "mod_req_001",
+    "status": "pending_approval",
+    "requested_at": "2025-09-05T18:20:00Z"
+  }
+}
+```
+
+### 2.6 긴급 재검토 요청
+```http
+POST /checklist/emergency-review
+```
+
+**요청**
+```json
+{
+  "record_id": "record_20250905_001",
+  "reason": "잘못 체크했습니다",
+  "requested_by": "worker1"
+}
+```
+
+**응답**
+```json
+{
+  "success": true,
+  "data": {
+    "review_id": "emergency_001",
+    "status": "review_granted",
+    "expires_at": "2025-09-05T18:25:00Z"
+  }
+}
+```
 ```http
 GET /checklist/records
 ```
