@@ -123,7 +123,8 @@
       "assigned_to": "백승재",
       "assigned_by": "풍기덕",
       "priority": "HIGH",
-      "status": "TODO",
+      "status": "DONE",
+      "completed_at": "2025-09-05T16:55:00Z",
       "estimated_hours": 0.5,
       "created_at": "2025-09-05T16:45:00Z",
       "due_date": "2025-09-05T17:30:00Z",
@@ -132,5 +133,5 @@
   ],
   "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
   "priority_levels": ["LOW", "MEDIUM", "HIGH", "URGENT"],
-  "last_updated": "2025-09-05T16:45:00Z"
+  "last_updated": "2025-09-05T16:55:00Z"
 }
