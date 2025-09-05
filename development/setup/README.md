@@ -1,33 +1,34 @@
 # 개발 환경 설정 가이드
 
 ## 개요
-GMP CheckMaster AI 시스템 개발을 위한 환경 설정 가이드 모음
+GMP CheckMaster AI 시스템 개발을 위한 환경 설정 가이드
 
-## 구조
+## 현재 구조
 ```
 setup/
 ├── README.md                    # 이 파일 (설정 가이드 개요)
-├── 개발환경가이드.md            # 전체 개발 환경 설정 (TASK-20250905-1752에서 생성 예정)
-├── aws-setup.md                 # AWS 계정 및 서비스 설정
-├── local-development.md         # 로컬 개발 환경 설정
-└── deployment-guide.md          # 배포 환경 설정
+└── 개발환경가이드.md            # 전체 개발 환경 설정 (완성)
 ```
 
-## 설정 순서
+## 사용 방법
 
-### 1. 전체 개발 환경 설정
-📄 `개발환경가이드.md` - 시스템 아키텍처 기반 종합 가이드
+### 🚀 **개발 환경 구축하기**
+📄 **`개발환경가이드.md`** - 해커톤 최적화 종합 가이드
+- 필수 도구 설치 (Node.js, AWS CLI, Terraform)
+- 프로젝트 설정 및 클론
+- 백엔드/프론트엔드/인프라 개발 환경
+- 해커톤용 간소화 설정
+- 빠른 배포 스크립트
+- 디버깅 및 문제 해결
 
-### 2. AWS 환경 설정
-📄 `aws-setup.md` - AWS 계정, IAM, 서비스 설정
+## 빠른 시작
+1. `개발환경가이드.md` 파일 열기
+2. "빠른 시작 (Quick Start)" 섹션 따라하기
+3. 개발 시작!
 
-### 3. 로컬 개발 환경
-📄 `local-development.md` - Node.js, React, 개발 도구 설정
-
-### 4. 배포 환경 설정
-📄 `deployment-guide.md` - CI/CD, AWS Amplify 설정
-
-## 기본 정보
+---
+**업데이트**: 2025-09-05  
+**상태**: 해커톤용 완성 ✅
 
 ### Git 저장소
 - **GitHub URL**: https://github.com/Poongk/team10-aws-hackathon

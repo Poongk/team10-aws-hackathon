@@ -44,6 +44,11 @@
 2. **기획 문서**: `planning/README.md`
 3. **개발 가이드**: `development/README.md`
 
+## Q CLI 챗로그 저장
+대화 중 "**챗로그**" 또는 "**챗로그파일명**" 요청 → 생성된 명령어 복사 → Q CLI에 붙여넣기
+- 저장 위치: `management/chat-logs/`
+- 파일명 형식: `YYYYMMDD_HHMM`
+
 ## 주요 링크
 - **GitHub**: https://github.com/Poongk/team10-aws-hackathon
 - **진행 상황**: `management/해커톤_진행_순서.md`
