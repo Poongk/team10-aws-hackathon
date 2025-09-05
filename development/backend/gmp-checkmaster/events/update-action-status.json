@@ -1,0 +1,11 @@
+{
+  "httpMethod": "PUT",
+  "path": "/actions/record_001/status",
+  "pathParameters": {
+    "record_id": "record_001"
+  },
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"status\":\"in_progress\",\"updated_by\":\"operator1\",\"notes\":\"조치 시작됨\"}"
+}

@@ -7,9 +7,10 @@ const dashboardHandler = require('./dashboard-handler/index');
 const assignmentHandler = require('./assignment-handler/index');
 const notificationHandler = require('./notification-handler/index');
 const adminHandler = require('./admin-handler/index');
+const actionHandler = require('./action-handler/index');
 
 async function testAllAPIs() {
-  console.log('🧪 GMP CheckMaster AI - 전체 API 테스트 시작\n');
+  console.log('🧪 GMP CheckMaster AI - 전체 API 테스트 시작 (26개 API)\n');
 
   // 1. 인증 API 테스트
   console.log('🔐 1. 인증 API 테스트');
@@ -43,7 +44,11 @@ async function testAllAPIs() {
   console.log('\n⚙️ 8. 관리자 API 테스트 (3개)');
   await testAdmin();
 
-  console.log('\n✅ 전체 API 테스트 완료! (총 22개 API)');
+  // 9. 조치 관리 API 테스트 (신규)
+  console.log('\n🚨 9. 조치 관리 API 테스트 (4개)');
+  await testAction();
+
+  console.log('\n✅ 전체 API 테스트 완료! (총 26개 API)');
 }
 
 async function testAuth() {
@@ -233,6 +238,38 @@ async function testAdmin() {
       };
       
       const result = await adminHandler.handler(event);
+      const data = JSON.parse(result.body);
+      console.log(`  ✅ ${test.name}:`, data.success ? '성공' : '실패');
+    } catch (error) {
+      console.log(`  ❌ ${test.name}: 실패 -`, error.message);
+    }
+  }
+}
+
+async function testAction() {
+  const tests = [
+    { path: '/actions/list', method: 'GET', name: 'GET /actions/list' },
+    { path: '/actions/record_001/status', method: 'PUT', name: 'PUT /actions/{id}/status' },
+    { path: '/actions/record_001/complete', method: 'POST', name: 'POST /actions/{id}/complete' },
+    { path: '/actions/status/record_001', method: 'GET', name: 'GET /actions/status/{id}' }
+  ];
+
+  for (const test of tests) {
+    try {
+      const event = {
+        path: test.path,
+        httpMethod: test.method,
+        pathParameters: test.path.includes('record_001') ? { record_id: 'record_001' } : {},
+        body: (test.method === 'POST' || test.method === 'PUT') ? 
+          JSON.stringify({ 
+            status: 'in_progress',
+            updated_by: 'operator1',
+            completion_notes: '조치 완료',
+            completed_by: 'operator1'
+          }) : null
+      };
+      
+      const result = await actionHandler.handler(event);
       const data = JSON.parse(result.body);
       console.log(`  ✅ ${test.name}:`, data.success ? '성공' : '실패');
     } catch (error) {

@@ -1,0 +1,11 @@
+{
+  "httpMethod": "POST",
+  "path": "/actions/record_001/complete",
+  "pathParameters": {
+    "record_id": "record_001"
+  },
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"completion_notes\":\"귀가 조치 완료, 진단서 제출 확인\",\"completed_by\":\"operator1\",\"final_result\":\"resolved\"}"
+}

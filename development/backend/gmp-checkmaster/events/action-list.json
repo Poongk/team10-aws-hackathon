@@ -1,0 +1,7 @@
+{
+  "httpMethod": "GET",
+  "path": "/actions/list",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

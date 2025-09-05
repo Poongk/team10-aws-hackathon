@@ -193,6 +193,34 @@ Resources:
             Path: /operator/qr-validity/daily
             Method: put
 
+  # 조치 관리 핸들러 (신규)
+  ActionHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: action-handler/
+      Handler: index.handler
+      Events:
+        GetActionList:
+          Type: Api
+          Properties:
+            Path: /actions/list
+            Method: get
+        UpdateActionStatus:
+          Type: Api
+          Properties:
+            Path: /actions/{record_id}/status
+            Method: put
+        CompleteAction:
+          Type: Api
+          Properties:
+            Path: /actions/{record_id}/complete
+            Method: post
+        GetActionStatus:
+          Type: Api
+          Properties:
+            Path: /actions/status/{record_id}
+            Method: get
+
 Outputs:
   ApiGatewayEndpoint:
     Description: "API Gateway endpoint URL"
