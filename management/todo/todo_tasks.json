@@ -144,9 +144,22 @@
       "created_at": "2025-09-05T16:45:00Z",
       "due_date": "2025-09-05T17:30:00Z",
       "details_file": "tasks/TASK-010_분석자료비교검토.md"
+    },
+    {
+      "id": "TASK-011",
+      "title": "React 헬로월드 + Terraform 배포 테스트",
+      "description": "React 기반 헬로월드 앱을 Terraform으로 AWS에 배포하는 전체 파이프라인 테스트",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "estimated_hours": 2,
+      "created_at": "2025-09-05T17:18:00Z",
+      "due_date": "2025-09-05T19:18:00Z",
+      "details_file": "tasks/TASK-011_React-Terraform-배포테스트.md"
     }
   ],
   "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
   "priority_levels": ["LOW", "MEDIUM", "HIGH", "URGENT"],
-  "last_updated": "2025-09-05T16:55:00Z"
+  "last_updated": "2025-09-05T17:38:00Z"
 }
