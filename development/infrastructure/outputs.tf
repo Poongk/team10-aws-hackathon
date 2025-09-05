@@ -14,8 +14,18 @@ output "website_url" {
 }
 
 output "api_gateway_url" {
-  description = "백엔드 API Gateway URL"
+  description = "백엔드 API Gateway URL (기존)"
   value       = aws_api_gateway_deployment.gmp_api_deployment.invoke_url
+}
+
+output "simple_api_gateway_url" {
+  description = "백엔드 Simple API Gateway URL"
+  value       = aws_api_gateway_deployment.simple_gmp_api_deployment.invoke_url
+}
+
+output "final_api_gateway_url" {
+  description = "🔥 최종 DynamoDB 연동 API URL"
+  value       = aws_api_gateway_deployment.final_gmp_api_deployment.invoke_url
 }
 
 output "lambda_function_name" {
@@ -23,7 +33,23 @@ output "lambda_function_name" {
   value       = aws_lambda_function.gmp_router.function_name
 }
 
+output "final_lambda_function_name" {
+  description = "🔥 최종 DynamoDB 연동 Lambda 함수 이름"
+  value       = aws_lambda_function.final_gmp_api.function_name
+}
+
 output "api_docs_url" {
   description = "API 문서 웹페이지 URL"
   value       = "http://${aws_s3_bucket_website_configuration.hello_world.website_endpoint}/api-docs/"
+}
+
+output "dynamodb_tables" {
+  description = "생성된 DynamoDB 테이블들"
+  value = {
+    users               = aws_dynamodb_table.users.name
+    checklist_templates = aws_dynamodb_table.checklist_templates.name
+    checklist_records   = aws_dynamodb_table.checklist_records.name
+    ai_judgments        = aws_dynamodb_table.ai_judgments.name
+    qr_codes           = aws_dynamodb_table.qr_codes.name
+  }
 }
