@@ -79,6 +79,16 @@ class GMPScreenshotTool:
             self.driver.get(url)
             time.sleep(2)  # 페이지 로딩 대기
             
+            # 페이지 전체 높이로 윈도우 크기 조정
+            total_height = self.driver.execute_script("return document.body.scrollHeight")
+            self.driver.set_window_size(1440, total_height + 100)  # 여유 공간 추가
+            
+            # 스크롤을 맨 아래로 내린 후 다시 맨 위로
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
+            self.driver.execute_script("window.scrollTo(0, 0);")
+            time.sleep(1)
+            
             if not filename:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 # URL을 파일명으로 사용 가능하게 변환

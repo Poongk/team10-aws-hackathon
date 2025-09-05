@@ -5,6 +5,7 @@ import QrScanner from 'qr-scanner'
 function QRScannerPage() {
   const navigate = useNavigate()
   const videoRef = useRef(null)
+  const qrScannerRef = useRef(null)
   const [isScanning, setIsScanning] = useState(false)
   const [scanResult, setScanResult] = useState('')
   const [cameraError, setCameraError] = useState('')
@@ -15,30 +16,49 @@ function QRScannerPage() {
   })
 
   useEffect(() => {
-    // 컴포넌트 마운트 시 카메라 권한 요청
     startCamera()
     
     return () => {
-      stopCamera()
+      cleanup()
     }
   }, [])
+
+  const cleanup = () => {
+    // QR Scanner 정리
+    if (qrScannerRef.current) {
+      qrScannerRef.current.stop()
+      qrScannerRef.current.destroy()
+      qrScannerRef.current = null
+    }
+    
+    // 비디오 스트림 정리
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks()
+      tracks.forEach(track => {
+        track.stop()
+      })
+      videoRef.current.srcObject = null
+    }
+    
+    setIsScanning(false)
+  }
 
   const startCamera = async () => {
     try {
       if (videoRef.current) {
-        const qrScanner = new QrScanner(
+        qrScannerRef.current = new QrScanner(
           videoRef.current,
           result => {
             console.log('QR 코드 스캔 결과:', result.data)
             setScanResult(result.data)
-            setIsScanning(false)
             
             // QR 코드 데이터 파싱 및 결과 페이지로 이동
             try {
               const qrData = JSON.parse(result.data)
+              cleanup() // 카메라 정리 후 이동
               navigate('/access-result', { state: { qrData } })
             } catch (e) {
-              // JSON이 아닌 경우 단순 텍스트로 처리
+              cleanup() // 카메라 정리 후 이동
               navigate('/access-result', { state: { qrData: { id: result.data, judgment: 'unknown' } } })
             }
           },
@@ -49,7 +69,7 @@ function QRScannerPage() {
           }
         )
         
-        await qrScanner.start()
+        await qrScannerRef.current.start()
         setIsScanning(true)
         setCameraError('')
       }
@@ -57,15 +77,6 @@ function QRScannerPage() {
       console.error('카메라 접근 오류:', error)
       setCameraError('카메라에 접근할 수 없습니다. 권한을 확인해주세요.')
     }
-  }
-
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks()
-      tracks.forEach(track => track.stop())
-      videoRef.current.srcObject = null
-    }
-    setIsScanning(false)
   }
 
   const handleManualInput = () => {
@@ -77,10 +88,10 @@ function QRScannerPage() {
 
   const handleQRScan = (qrData) => {
     setScanResult(qrData)
-    setIsScanning(false)
     
     // QR 스캔 결과 처리 (1초 후 결과 페이지로 이동)
     setTimeout(() => {
+      cleanup() // 카메라 정리 후 이동
       navigate('/access-result', { 
         state: { 
           qrData,
@@ -90,16 +101,20 @@ function QRScannerPage() {
     }, 1000)
   }
 
-  // 시뮬레이션: QR 코드 감지 (실제로는 QR 스캔 라이브러리 사용)
   const simulateQRScan = () => {
     const mockQRData = `QR_${Date.now()}_36.5`
     handleQRScan(mockQRData)
   }
 
+  const handleBack = () => {
+    cleanup() // 뒤로 가기 시에도 카메라 정리
+    navigate('/')
+  }
+
   return (
     <div className="page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', fontSize: '18px' }}>
+        <button onClick={handleBack} style={{ background: 'none', border: 'none', fontSize: '18px' }}>
           ← 뒤로
         </button>
         <h2>📷 QR 스캐너</h2>

@@ -1,33 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
-import ChecklistPage from './pages/ChecklistPage'
-import ResultPage from './pages/ResultPage'
-import QRScannerPage from './pages/QRScannerPage'
-import AccessResultPage from './pages/AccessResultPage'
-import Navigation from './components/Navigation'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import MobileLayout from './components/MobileLayout'
+import DesktopLayout from './components/DesktopLayout'
 import './App.css'
 
 function App() {
   return (
     <Router>
-      <div className="app-wrapper">
-        <div className="app-container">
-          <div className="mobile-frame">
-            <div className="mobile-screen">
-              <Routes>
-                <Route path="/" element={<LoginPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/checklist" element={<ChecklistPage />} />
-                <Route path="/result" element={<ResultPage />} />
-                <Route path="/scanner" element={<QRScannerPage />} />
-                <Route path="/access-result" element={<AccessResultPage />} />
-              </Routes>
-            </div>
-          </div>
-        </div>
-        <Navigation />
-      </div>
+      <Routes>
+        {/* 모바일 프레임 적용 */}
+        <Route path="/mobile/*" element={<MobileLayout />} />
+        
+        {/* 데스크톱 전체 화면 */}
+        <Route path="/desktop/*" element={<DesktopLayout />} />
+        
+        {/* 기본 리다이렉트 */}
+        <Route path="/" element={<Navigate to="/mobile/login" replace />} />
+      </Routes>
     </Router>
   )
 }

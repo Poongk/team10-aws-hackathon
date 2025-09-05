@@ -1,20 +1,18 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 
-function Navigation() {
+function MobileNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
 
   const pages = [
-    { path: '/', label: '로그인', icon: '🔐' },
-    { path: '/dashboard', label: '대시보드', icon: '🏠' },
-    { path: '/checklist', label: '체크리스트', icon: '📋' },
-    { path: '/result', label: 'AI 결과', icon: '🤖' },
-    { path: '/scanner', label: 'QR 스캐너', icon: '📱' },
-    { path: '/access-result', label: '출입결과', icon: '✅' },
-    { path: '/admin', label: '관리자', icon: '👨‍💼' },
-    { path: '/settings', label: '설정', icon: '⚙️' },
-    { path: '/team-status', label: '팀현황', icon: '🏢' },
-    { path: '/non-compliance', label: '부적합자', icon: '🚨' }
+    { path: '/mobile/login', label: '로그인', icon: '🔐' },
+    { path: '/mobile/dashboard', label: '대시보드', icon: '🏠' },
+    { path: '/mobile/checklist', label: '체크리스트', icon: '📋' },
+    { path: '/mobile/result', label: 'AI 결과', icon: '🤖' },
+    { path: '/mobile/scanner', label: 'QR 스캐너', icon: '📱' },
+    { path: '/mobile/access-result', label: '출입결과', icon: '✅' },
+    { path: '/mobile/team-status', label: '팀현황', icon: '🏢' },
+    { path: '/desktop/operator-dashboard', label: '운영자', icon: '👨‍💼' }
   ]
 
   return (
@@ -29,7 +27,7 @@ function Navigation() {
       border: '2px solid #1a252f',
       display: 'grid',
       gridTemplateColumns: 'repeat(2, 1fr)',
-      gridTemplateRows: 'auto auto repeat(5, 1fr)',
+      gridTemplateRows: 'auto auto repeat(4, 1fr)',
       gap: '8px',
       zIndex: 99999,
       width: '180px'
@@ -44,17 +42,17 @@ function Navigation() {
         marginBottom: '2px',
         textShadow: '0 1px 2px rgba(0,0,0,0.5)'
       }}>
-        해커톤용 리모컨
+        모바일 리모컨
       </div>
       
       {/* 리모컨 상단 표시등 */}
       <div style={{
         gridColumn: '1 / -1',
         height: '4px',
-        background: location.pathname !== '/' ? '#52c41a' : '#ff4d4f',
+        background: location.pathname !== '/mobile/login' ? '#52c41a' : '#ff4d4f',
         borderRadius: '2px',
         marginBottom: '4px',
-        boxShadow: `0 0 6px ${location.pathname !== '/' ? '#52c41a' : '#ff4d4f'}`
+        boxShadow: `0 0 6px ${location.pathname !== '/mobile/login' ? '#52c41a' : '#ff4d4f'}`
       }} />
       
       {pages.map(page => (
@@ -103,4 +101,4 @@ function Navigation() {
   )
 }
 
-export default Navigation
+export default MobileNavigation
