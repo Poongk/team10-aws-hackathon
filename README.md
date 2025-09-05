@@ -11,78 +11,45 @@
 
 ## 팀 정보
 - **팀명**: drug qrew
-- **팀원**: 
-  - 백승재 (SAP 개발자) - 백엔드/AI 개발 담당
-  - 풍기덕 (SAP 운영자) - 프론트엔드/배포 담당
+- **팀원**: 백승재 (SAP 개발자), 풍기덕 (SAP 운영자)
 - **배경**: 일동제약 IT 부서
 - **해커톤**: AWS 해커톤 2025.09.05-06
 
-## 📋 할일 관리
-**새로운 할일 추가 또는 진행 상황 확인은 아래 문서를 참고하세요:**
-
-👉 **[팀협업관리/README.md](./팀협업관리/README.md)**
-
-### 할일 관리 요약
-- **JSON 파일**: `팀협업관리/todo_tasks.json` (전체 작업 현황)
-- **상세 내역**: `팀협업관리/tasks/TASK-XXX_작업명.md`
-- **Git 연동**: 모든 작업 변경사항 커밋 시 TASK-ID 포함
-
 ## 프로젝트 구조
-```
-hackathon_20250905/
-├── 참고자료/              # 해커톤 관련 자료
-├── 아이디어/              # 브레인스토밍 및 아이디어 발전
-├── 자료수집/              # 조사 자료 및 분석
-├── 개발/                  # 실제 개발 파일들
-│   ├── 문서/              # 기술 문서
-│   ├── 백엔드/            # 서버 코드
-│   ├── 프론트엔드/        # 클라이언트 코드
-│   └── 배포/              # 인프라 코드
-├── 팀협업관리/            # 작업 관리 시스템
-├── 발표준비/              # 발표 자료
-├── CLI대화기록/           # Q CLI 대화 기록
-└── README.md             # 이 파일
-```
+
+### 📋 `management/`
+**프로젝트 관리**
+- 작업 관리, 이슈 추적, 팀 협업 시스템
+- **상세 내용**: `management/README.md` 참고
+
+### 📝 `planning/`
+**기획 및 문서**
+- 사용자 스토리, 요구사항, 설계 문서
+- **상세 내용**: `planning/README.md` 참고
+
+### 💻 `development/`
+**개발 및 배포**
+- 백엔드, 프론트엔드, 인프라 코드
+- **상세 내용**: `development/README.md` 참고
 
 ## 기술 스택
-### AI 서비스
-- **Amazon Q Developer**: 기본 GMP 질의응답
-- **Amazon Bedrock (Claude-3)**: 지능형 패턴 분석
-
-### AWS 서비스
-- **Lambda**: 서버리스 API
-- **DynamoDB**: 데이터 저장
-- **S3 + CloudFront**: 정적 웹 호스팅
-- **SNS**: 알림 서비스
-- **API Gateway**: API 관리
-
-### 개발 도구
+- **AI**: Amazon Q Developer, Amazon Bedrock (Claude-3)
+- **Backend**: AWS Lambda, DynamoDB, API Gateway
 - **Frontend**: React, Chart.js
-- **Backend**: Python, Node.js
-- **Infrastructure**: Terraform
-- **Deployment**: AWS Amplify
+- **Infrastructure**: Terraform, AWS Amplify
+- **Communication**: Slack 연동
 
-## 개발 진행 상황
-현재 진행 단계: **4단계 - 요구사항 정리**
+## 빠른 시작
+1. **프로젝트 관리**: `management/README.md`
+2. **기획 문서**: `planning/README.md`
+3. **개발 가이드**: `development/README.md`
 
-- ✅ 1-3단계 완료 (초기설정 → 자료조사 → 아이디어 발전)
-- 🔄 4단계 진행 중 (요구사항 정리)
-- ⏳ 5-9단계 대기 중 (설계 → 개발 → 배포 → 발표)
-
-**상세 진행 상황**: `해커톤_진행_순서.md` 참고
-
-## 주요 문서
-- **아이디어 발전**: `아이디어/최종_확정_MVP.md`
-- **사용자 스토리**: `개발/문서/사용자스토리.md`
-- **팀 협업**: `팀협업관리/README.md`
-- **진행 순서**: `해커톤_진행_순서.md`
-
-## 연락처
+## 주요 링크
 - **GitHub**: https://github.com/Poongk/team10-aws-hackathon
-- **팀 리더**: 백승재
-- **협업 관리**: `팀협업관리/todo_tasks.json`
+- **진행 상황**: `management/해커톤_진행_순서.md`
+- **팀 협업**: `management/todo/README.md`
 
 ---
 **프로젝트 시작**: 2025-09-05 10:30  
 **제출 마감**: 2025-09-06 09:30  
-**최종 업데이트**: 2025-09-05 13:43
+**최종 업데이트**: 2025-09-05 14:33

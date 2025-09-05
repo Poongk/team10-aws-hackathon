@@ -1,0 +1,39 @@
+{
+    "folders": [
+        {
+            "name": "GMP CheckMaster AI",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/.git": false,
+            "**/node_modules": true,
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/dist": true,
+            "**/build": true
+        },
+        "search.exclude": {
+            "**/node_modules": true,
+            "**/.git": true,
+            "**/dist": true,
+            "**/build": true
+        },
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "files.encoding": "utf8",
+        "files.eol": "\n"
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-vscode.vscode-json",
+            "bradlc.vscode-tailwindcss",
+            "esbenp.prettier-vscode",
+            "ms-vscode.vscode-typescript-next",
+            "hashicorp.terraform"
+        ]
+    }
+}
