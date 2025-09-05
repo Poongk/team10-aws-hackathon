@@ -1,0 +1,184 @@
+/* GMP CheckMaster AI - 기본 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #262626;
+  min-height: 100vh;
+  overflow: hidden; /* 외부 스크롤 방지 */
+}
+
+.App {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* 개선된 모바일 프레임 - 내부 스크롤 */
+.mobile-frame {
+  width: 375px;
+  height: 812px;
+  background: linear-gradient(145deg, #2c3e50, #34495e);
+  border-radius: 40px;
+  padding: 8px;
+  box-shadow: 
+    0 0 0 2px #1a252f,
+    0 20px 40px rgba(0,0,0,0.3),
+    inset 0 0 0 1px rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden; /* 프레임 밖으로 넘치지 않게 */
+}
+
+.mobile-frame::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: #1a252f;
+  border-radius: 3px;
+  z-index: 10;
+}
+
+.mobile-frame::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  background: #1a252f;
+  border-radius: 3px;
+  z-index: 10;
+}
+
+.mobile-screen {
+  width: 100%;
+  height: 100%;
+  background: #f8f9fa;
+  border-radius: 32px;
+  overflow: hidden; /* 스크린 밖으로 넘치지 않게 */
+  position: relative;
+}
+
+/* 공통 컨테이너 - 내부 스크롤 */
+.page-container {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background: #f8f9fa;
+  overflow-y: auto; /* 내부 스크롤만 허용 */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  scroll-behavior: smooth;
+}
+
+/* 스크롤바 스타일링 (웹킷 기반 브라우저) */
+.page-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.page-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.page-container::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
+}
+
+.page-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.3);
+}
+
+/* 공통 버튼 */
+.btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin: 8px 0;
+}
+
+.btn-primary {
+  background: #1890ff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #096dd9;
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: #52c41a;
+  color: white;
+}
+
+.btn-danger {
+  background: #f5222d;
+  color: white;
+}
+
+.btn-warning {
+  background: #faad14;
+  color: white;
+}
+
+/* 공통 카드 */
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 모바일에서는 전체 화면 */
+@media (max-width: 768px) {
+  body {
+    overflow: auto; /* 모바일에서는 일반 스크롤 */
+  }
+  
+  .App {
+    padding: 0;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .mobile-frame {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  
+  .mobile-frame::before,
+  .mobile-frame::after {
+    display: none;
+  }
+  
+  .mobile-screen {
+    border-radius: 0;
+  }
+  
+  .page-container {
+    min-height: 100vh;
+    height: auto;
+  }
+}
