@@ -329,9 +329,90 @@
       ],
       "backup_plan": "시간 부족 시 QR 스캔을 수동 입력으로 대체, 일부 화면은 목업 데이터로 시연",
       "details_file": "tasks/TASK-20250905-2105_프론트엔드개발.md"
+    },
+    {
+      "id": "TASK-20250905-2209",
+      "title": "프론트엔드 자동화 도구 개발 - Selenium 기반 테스트 환경",
+      "description": "Python Selenium을 활용한 React 앱 자동 스크린샷 촬영 및 콘솔 로그 수집 도구 개발. 해커톤 시연 및 디버깅 지원",
+      "assigned_to": "백승재",
+      "assigned_by": "백승재",
+      "priority": "MEDIUM",
+      "status": "DONE",
+      "estimated_hours": 1,
+      "actual_hours": 1,
+      "created_at": "2025-09-05T22:05:00Z",
+      "completed_at": "2025-09-05T22:09:00Z",
+      "automation_features": [
+        "Python 가상환경 구축 (venv)",
+        "Selenium WebDriver 자동 설정",
+        "Chrome 브라우저 자동화",
+        "6개 핵심 화면 자동 스크린샷",
+        "사용자 플로우 시뮬레이션",
+        "개발자 콘솔 로그 수집",
+        "명령행 파라미터 지원"
+      ],
+      "tech_stack": {
+        "language": "Python 3.12",
+        "automation": "Selenium 4.15.0",
+        "driver_manager": "webdriver-manager 4.0.1",
+        "image_processing": "Pillow 10.0.1",
+        "cli": "argparse",
+        "environment": "venv (가상환경)"
+      },
+      "implemented_commands": {
+        "single_screenshot": "python screenshot.py --url <URL>",
+        "all_pages": "python screenshot.py --all",
+        "user_flow": "python screenshot.py --flow",
+        "console_logs": "python screenshot.py --console",
+        "custom_output": "python screenshot.py --url <URL> --output <filename>",
+        "base_url_change": "python screenshot.py --base-url <URL> --all"
+      },
+      "output_files": [
+        "screenshots/*.png - 타임스탬프 포함 스크린샷",
+        "screenshots/console_logs_*.txt - 브라우저 콘솔 로그",
+        "screenshots/*_flow_*.png - 사용자 플로우 시뮬레이션"
+      ],
+      "automation_benefits": [
+        "수동 스크린샷 작업 자동화",
+        "일관된 테스트 환경 제공",
+        "숨겨진 JavaScript 오류 발견",
+        "해커톤 시연 자료 자동 생성",
+        "Q CLI 연동을 통한 AI 분석 지원",
+        "다양한 브라우저 환경 테스트 가능"
+      ],
+      "q_cli_integration": {
+        "screenshot_analysis": "이 스크린샷을 분석해줘: automation/screenshots/파일명.png",
+        "console_log_analysis": "이 콘솔 로그를 분석해줘: automation/screenshots/console_logs_*.txt",
+        "debugging_support": "스크린샷과 로그를 함께 제공하여 종합적인 문제 분석"
+      },
+      "project_structure": {
+        "location": "development/frontend/automation/",
+        "venv": "venv/ - Python 가상환경",
+        "main_script": "screenshot.py - 메인 자동화 스크립트",
+        "requirements": "requirements.txt - Python 의존성",
+        "output_dir": "screenshots/ - 결과 파일 저장",
+        "documentation": "README.md - 사용 가이드"
+      },
+      "success_criteria": [
+        "✅ Python 가상환경 구축 완료",
+        "✅ Selenium WebDriver 자동 설정",
+        "✅ 6개 핵심 화면 스크린샷 자동 촬영",
+        "✅ 사용자 플로우 시뮬레이션 구현",
+        "✅ 개발자 콘솔 로그 수집 기능",
+        "✅ 명령행 파라미터 지원 (URL, 출력파일명 등)",
+        "✅ Q CLI 연동을 위한 파일 출력 형식"
+      ],
+      "future_enhancements": [
+        "다양한 브라우저 지원 (Firefox, Safari)",
+        "모바일 디바이스 시뮬레이션",
+        "성능 메트릭 수집 (로딩 시간, 메모리 사용량)",
+        "자동 회귀 테스트 (스크린샷 비교)",
+        "CI/CD 파이프라인 연동"
+      ],
+      "details_file": "tasks/TASK-20250905-2209_자동화도구개발.md"
     }
   ],
   "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
   "priority_levels": ["LOW", "MEDIUM", "HIGH", "URGENT"],
-  "last_updated": "2025-09-05T21:30:00Z"
+  "last_updated": "2025-09-05T22:09:00Z"
 }
