@@ -31,3 +31,6 @@ build/
 # Temporary files
 *.tmp
 *.temp
+
+# Chat logs (personal conversation records)
+planning/chat-logs/
