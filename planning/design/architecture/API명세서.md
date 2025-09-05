@@ -262,6 +262,66 @@ POST /checklist/emergency-review
   }
 }
 ```
+
+### 2.7 QR 유효시간 설정 (관리자)
+```http
+PUT /admin/qr-validity/template/{template_id}
+```
+
+**요청**
+```json
+{
+  "default_expires_time": "17:30",
+  "weekend_expires_time": "14:00",
+  "emergency_max_extension": "2_hours",
+  "updated_by": "admin1"
+}
+```
+
+**응답**
+```json
+{
+  "success": true,
+  "data": {
+    "template_id": "template_001",
+    "default_expires_time": "17:30",
+    "updated_at": "2025-09-05T20:20:00Z"
+  }
+}
+```
+
+### 2.8 QR 유효시간 당일 조정 (운영자)
+```http
+PUT /operator/qr-validity/daily
+```
+
+**요청**
+```json
+{
+  "date": "2025-09-05",
+  "template_id": "template_001",
+  "adjusted_expires_time": "20:00",
+  "reason": "야근으로 인한 연장",
+  "adjusted_by": "operator1"
+}
+```
+
+**응답**
+```json
+{
+  "success": true,
+  "data": {
+    "adjustment_id": "adj_001",
+    "date": "2025-09-05",
+    "original_time": "17:30",
+    "adjusted_time": "20:00",
+    "reason": "야근으로 인한 연장",
+    "affected_users": 45,
+    "adjusted_at": "2025-09-05T20:20:00Z"
+  }
+}
+```
+
 ```http
 GET /checklist/records
 ```
