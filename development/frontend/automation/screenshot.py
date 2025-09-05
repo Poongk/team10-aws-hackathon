@@ -20,13 +20,35 @@ class GMPScreenshotTool:
         self.setup_driver()
         
     def setup_driver(self):
-        """Chrome 드라이버 설정"""
+        """Chrome 드라이버 설정 (WSL 환경 최적화)"""
         chrome_options = Options()
-        chrome_options.add_argument("--window-size=1920,1080")
+        # WSL 환경을 위한 headless 모드 설정
+        chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--window-size=1440,900")  # 더 큰 화면으로 변경
         chrome_options.add_argument("--disable-web-security")
         chrome_options.add_argument("--disable-features=VizDisplayCompositor")
+        chrome_options.add_argument("--remote-debugging-port=9222")
+        # SSL 인증서 무시 (HTTPS 로컬 개발용)
+        chrome_options.add_argument("--ignore-ssl-errors")
+        chrome_options.add_argument("--ignore-certificate-errors")
+        chrome_options.add_argument("--allow-running-insecure-content")
+        chrome_options.add_argument("--disable-extensions")
+        # 한글 폰트 렌더링 개선
+        chrome_options.add_argument("--lang=ko-KR")
+        chrome_options.add_argument("--force-device-scale-factor=1")
+        chrome_options.add_argument("--disable-font-subpixel-positioning")
         
-        service = Service(ChromeDriverManager().install())
+        # 로컬 ChromeDriver 경로 사용
+        chromedriver_path = os.path.join(os.path.dirname(__file__), "chromedriver-linux64", "chromedriver")
+        if os.path.exists(chromedriver_path):
+            service = Service(chromedriver_path)
+        else:
+            # fallback to webdriver-manager
+            service = Service(ChromeDriverManager().install())
+        
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
         
     def take_screenshot(self, page_name, url_path=""):
@@ -59,7 +81,11 @@ class GMPScreenshotTool:
             
             if not filename:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"screenshots/screenshot_{timestamp}.png"
+                # URL을 파일명으로 사용 가능하게 변환
+                url_part = url.replace("://", "_").replace("/", "_").replace("?", "_").replace("&", "_").replace("=", "_")
+                if len(url_part) > 50:  # 너무 긴 경우 축약
+                    url_part = url_part[:50]
+                filename = f"screenshots/{url_part}_{timestamp}.png"
             
             self.driver.save_screenshot(filename)
             print(f"✅ 저장 완료: {filename}")

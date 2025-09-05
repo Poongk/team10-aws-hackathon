@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import QrScanner from 'qr-scanner'
 
 function QRScannerPage() {
   const navigate = useNavigate()
@@ -24,14 +25,31 @@ function QRScannerPage() {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment' // 후면 카메라 사용
-        } 
-      })
-      
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
+        const qrScanner = new QrScanner(
+          videoRef.current,
+          result => {
+            console.log('QR 코드 스캔 결과:', result.data)
+            setScanResult(result.data)
+            setIsScanning(false)
+            
+            // QR 코드 데이터 파싱 및 결과 페이지로 이동
+            try {
+              const qrData = JSON.parse(result.data)
+              navigate('/access-result', { state: { qrData } })
+            } catch (e) {
+              // JSON이 아닌 경우 단순 텍스트로 처리
+              navigate('/access-result', { state: { qrData: { id: result.data, judgment: 'unknown' } } })
+            }
+          },
+          {
+            preferredCamera: 'environment',
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+          }
+        )
+        
+        await qrScanner.start()
         setIsScanning(true)
         setCameraError('')
       }
