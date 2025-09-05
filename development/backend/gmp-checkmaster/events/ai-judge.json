@@ -1,0 +1,8 @@
+{
+  "httpMethod": "POST",
+  "path": "/ai/judge",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"responses\":{\"symptoms\":\"없음\",\"respiratory\":\"없음\",\"wound\":\"없음\",\"clothing\":\"적절\",\"accessories\":\"제거함\",\"hair\":\"적절\",\"nails\":\"적절\",\"makeup\":\"안함\",\"personal_items\":\"반입안함\"}}"
+}

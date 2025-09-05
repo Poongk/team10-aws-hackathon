@@ -11,6 +11,16 @@ __pycache__/
 .aws/
 *.pem
 
+# SAM
+.aws-sam/
+samconfig.toml
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate*
+*.tfplan
+
 # IDE
 .vscode/
 .idea/

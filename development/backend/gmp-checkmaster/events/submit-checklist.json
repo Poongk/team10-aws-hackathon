@@ -1,0 +1,8 @@
+{
+  "httpMethod": "POST",
+  "path": "/checklists/submit",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"user_id\":\"worker1\",\"template_id\":\"hygiene_checklist\",\"responses\":{\"symptoms\":\"없음\",\"respiratory\":\"없음\",\"wound\":\"없음\",\"clothing\":\"적절\",\"accessories\":\"제거함\",\"hair\":\"적절\",\"nails\":\"적절\",\"makeup\":\"안함\",\"personal_items\":\"반입안함\"}}"
+}

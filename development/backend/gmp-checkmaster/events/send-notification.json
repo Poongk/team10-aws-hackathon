@@ -1,0 +1,8 @@
+{
+  "httpMethod": "POST",
+  "path": "/notification/send",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"type\":\"reminder\",\"target_users\":[\"worker1\",\"worker2\"],\"message\":\"체크리스트 작성 마감 30분 전입니다.\",\"priority\":\"normal\"}"
+}

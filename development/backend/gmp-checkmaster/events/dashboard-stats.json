@@ -1,0 +1,7 @@
+{
+  "httpMethod": "GET",
+  "path": "/dashboard/stats",
+  "headers": {
+    "Content-Type": "application/json"
+  }
+}

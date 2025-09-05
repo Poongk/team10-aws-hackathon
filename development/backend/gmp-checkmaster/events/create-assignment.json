@@ -1,0 +1,8 @@
+{
+  "httpMethod": "POST",
+  "path": "/assignment/create",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"template_id\":\"template_001\",\"user_ids\":[\"worker1\",\"worker2\"],\"schedule\":{\"days\":[\"monday\",\"tuesday\",\"wednesday\",\"thursday\",\"friday\"],\"deadline\":\"08:20\"}}"
+}
