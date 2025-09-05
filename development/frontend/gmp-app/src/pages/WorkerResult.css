@@ -1,0 +1,265 @@
+/* WK-004: 판정결과 스타일 - 스코프 제한 */
+
+/* 판정결과 컨테이너 */
+.worker-result {
+  /* 기본 페이지 컨테이너 스타일 상속 */
+}
+
+/* 헤더 */
+.worker-result .result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 24px;
+}
+
+.worker-result .back-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #1890ff;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.worker-result .back-button:hover {
+  color: #40a9ff;
+}
+
+.worker-result .result-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  margin-right: 40px;
+}
+
+/* 결과 표시 영역 */
+.worker-result .result-content {
+  text-align: center;
+  padding: 40px 20px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+}
+
+.worker-result .result-content.approved {
+  background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%);
+  border: 1px solid #d1fae5;
+}
+
+.worker-result .result-content.rejected {
+  background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+  border: 1px solid #fecaca;
+}
+
+/* 결과 아이콘 */
+.worker-result .result-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+/* 결과 메시지 */
+.worker-result .result-message {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+.worker-result .result-content.approved .result-message {
+  color: #10b981;
+}
+
+.worker-result .result-content.rejected .result-message {
+  color: #ef4444;
+}
+
+/* QR 섹션 */
+.worker-result .qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.worker-result .qr-container {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.worker-result .qr-container.expired .qr-image {
+  filter: grayscale(100%) opacity(0.5);
+}
+
+.worker-result .expired-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.worker-result .qr-image {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+.worker-result .timer {
+  font-size: 16px;
+  font-weight: 500;
+  color: #10b981;
+  font-family: 'Courier New', monospace;
+}
+
+.worker-result .timer.warning {
+  color: #ef4444;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* 안내 카드 */
+.worker-result .guidance-card {
+  background: white;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.worker-result .guidance-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.worker-result .guidance-text {
+  font-size: 16px;
+  color: #ef4444;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* 액션 섹션 */
+.worker-result .action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 0;
+}
+
+.worker-result .btn {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.worker-result .btn-primary {
+  background: #1890ff;
+  color: white;
+}
+
+.worker-result .btn-primary:hover {
+  background: #40a9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.worker-result .btn-secondary {
+  background: #f5f5f5;
+  color: #595959;
+  border: 1px solid #d9d9d9;
+}
+
+.worker-result .btn-secondary:hover {
+  background: #fafafa;
+  border-color: #bfbfbf;
+}
+
+/* 부적합 판정 시 버튼 색상 조정 */
+.worker-result .result-content.rejected ~ .action-section .btn-primary {
+  background: #ef4444;
+}
+
+.worker-result .result-content.rejected ~ .action-section .btn-primary:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* 로딩 상태 */
+.worker-result .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .worker-result .result-header {
+    padding: 12px 0;
+  }
+  
+  .worker-result .result-header h1 {
+    font-size: 18px;
+    margin-right: 32px;
+  }
+  
+  .worker-result .result-content {
+    padding: 32px 16px;
+  }
+  
+  .worker-result .result-icon {
+    font-size: 56px;
+    margin-bottom: 20px;
+  }
+  
+  .worker-result .result-message {
+    font-size: 18px;
+    margin-bottom: 24px;
+  }
+  
+  .worker-result .qr-image {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .worker-result .guidance-card {
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .worker-result .guidance-icon {
+    font-size: 28px;
+  }
+  
+  .worker-result .guidance-text {
+    font-size: 14px;
+  }
+}

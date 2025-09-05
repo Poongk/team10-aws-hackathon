@@ -1,0 +1,258 @@
+/* WK-003: 체크리스트 작성 스타일 - 스코프 제한 */
+
+/* 체크리스트 컨테이너 */
+.worker-checklist {
+  /* 기본 페이지 컨테이너 스타일 상속 */
+}
+
+/* 헤더 */
+.worker-checklist .checklist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 24px;
+}
+
+.worker-checklist .back-button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #1890ff;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.worker-checklist .back-button:hover {
+  color: #40a9ff;
+}
+
+.worker-checklist .checklist-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  margin-right: 40px;
+}
+
+/* 진행률 표시 - 상단 sticky */
+.worker-checklist .progress-section {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.worker-checklist .progress-dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.worker-checklist .progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.worker-checklist .progress-dot.completed {
+  background: #1890ff;
+}
+
+.worker-checklist .progress-text {
+  font-size: 14px;
+  color: #8c8c8c;
+  font-weight: 500;
+}
+
+/* 체크리스트 항목들 - 하단 여백 조정 */
+.worker-checklist .checklist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.worker-checklist .checklist-item {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.worker-checklist .question-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1890ff;
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.worker-checklist .question-content {
+  flex: 1;
+}
+
+.worker-checklist .question-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #262626;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.worker-checklist .options-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 선택 버튼 */
+.worker-checklist .option-button {
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.worker-checklist .option-button:hover:not(:disabled) {
+  border-color: #1890ff;
+  background: #f0f9ff;
+}
+
+.worker-checklist .option-button.selected {
+  border-color: #1890ff;
+  background: #1890ff;
+  color: white;
+}
+
+.worker-checklist .option-button.disabled {
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* AI 배지 */
+.worker-checklist .ai-badge {
+  background: #52c41a;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.worker-checklist .option-button.selected .ai-badge {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.worker-checklist .option-button.disabled .ai-badge {
+  background: #bfbfbf;
+  color: #8c8c8c;
+}
+
+/* 제출 섹션 - sticky 제거 */
+.worker-checklist .submit-section {
+  padding: 24px 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.worker-checklist .submit-button {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 56px;
+}
+
+.worker-checklist .submit-button.active {
+  background: #1890ff;
+  color: white;
+}
+
+.worker-checklist .submit-button.active:hover {
+  background: #40a9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+.worker-checklist .submit-button.disabled {
+  background: #f5f5f5;
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+
+/* 로딩 상태 */
+.worker-checklist .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .worker-checklist .checklist-header {
+    padding: 12px 0;
+  }
+  
+  .worker-checklist .checklist-header h1 {
+    font-size: 18px;
+    margin-right: 32px;
+  }
+  
+  .worker-checklist .progress-section {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .worker-checklist .checklist-item {
+    padding: 16px;
+    gap: 8px;
+  }
+  
+  .worker-checklist .question-text {
+    font-size: 15px;
+  }
+  
+  .worker-checklist .option-button {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+  
+  .worker-checklist .options-container {
+    gap: 6px;
+  }
+}
