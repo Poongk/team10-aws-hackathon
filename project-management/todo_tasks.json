@@ -78,11 +78,26 @@
       "assigned_to": "백승재",
       "assigned_by": "백승재",
       "priority": "HIGH",
-      "status": "TODO",
+      "status": "DONE",
       "estimated_hours": 0.5,
       "created_at": "2025-09-05T13:50:00Z",
       "due_date": "2025-09-05T14:30:00Z",
+      "completed_at": "2025-09-05T13:56:00Z",
+      "github_commit": "d006499",
       "details_file": "tasks/TASK-005_GitHub업로드.md"
+    },
+    {
+      "id": "TASK-006",
+      "title": "Slack 연동 설정",
+      "description": "작업 할당/완료 시 Slack 자동 알림 기능 구현",
+      "assigned_to": "풍기덕",
+      "assigned_by": "백승재",
+      "priority": "MEDIUM",
+      "status": "TODO",
+      "estimated_hours": 0.5,
+      "created_at": "2025-09-05T13:59:00Z",
+      "due_date": "2025-09-05T15:30:00Z",
+      "details_file": "tasks/TASK-006_Slack연동.md"
     }
   ],
   "task_status_options": ["TODO", "IN_PROGRESS", "REVIEW", "DONE", "BLOCKED"],
