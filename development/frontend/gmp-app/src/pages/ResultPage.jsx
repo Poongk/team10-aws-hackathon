@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import QRCode from 'qrcode'
 
 function ResultPage() {
   const navigate = useNavigate()
@@ -33,10 +34,31 @@ function ResultPage() {
       timestamp: new Date().toISOString()
     })
 
-    // QR 코드 생성 시뮬레이션
+    // QR 코드 생성
     if (judgment === 'approved' || judgment === 'review_required') {
-      const qrData = `QR_${Date.now()}_${checklistData.temperature || '36.5'}`
-      setQrCode(qrData)
+      const qrData = JSON.stringify({
+        id: `QR_${Date.now()}`,
+        judgment,
+        temperature: checklistData.temperature || '36.5',
+        timestamp: new Date().toISOString(),
+        worker: '김작업',
+        team: '생산팀A'
+      })
+      
+      // 실제 QR 코드 이미지 생성
+      QRCode.toDataURL(qrData, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      }).then(url => {
+        setQrCode(url)
+      }).catch(err => {
+        console.error('QR 코드 생성 오류:', err)
+        setQrCode('QR_ERROR')
+      })
     }
   }, [location.state])
 
@@ -153,22 +175,52 @@ function ResultPage() {
         <div className="card">
           <h3>📱 QR 코드</h3>
           <div style={{ textAlign: 'center', padding: '20px' }}>
-            <div style={{
-              width: '200px',
-              height: '200px',
-              margin: '0 auto',
-              background: '#f0f0f0',
-              border: '2px solid #d9d9d9',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              color: '#8c8c8c'
-            }}>
-              QR 코드 영역<br/>
-              {qrCode}
-            </div>
+            {qrCode === 'QR_ERROR' ? (
+              <div style={{
+                width: '200px',
+                height: '200px',
+                margin: '0 auto',
+                background: '#f0f0f0',
+                border: '2px solid #d9d9d9',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: '#8c8c8c'
+              }}>
+                QR 코드 생성 오류
+              </div>
+            ) : qrCode ? (
+              <img 
+                src={qrCode} 
+                alt="QR Code" 
+                style={{
+                  width: '200px',
+                  height: '200px',
+                  margin: '0 auto',
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '8px',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '200px',
+                height: '200px',
+                margin: '0 auto',
+                background: '#f0f0f0',
+                border: '2px solid #d9d9d9',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: '#8c8c8c'
+              }}>
+                QR 코드 생성 중...
+              </div>
+            )}
             <p style={{ margin: '16px 0', fontSize: '14px', color: '#595959' }}>
               보안담당자에게 QR 코드를 스캔받으세요
             </p>

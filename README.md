@@ -45,7 +45,9 @@
 3. **개발 가이드**: `development/README.md`
 
 ## Q CLI 챗로그 저장
-대화 중 "**챗로그**" 또는 "**챗로그파일명**" 요청 → 생성된 명령어 복사 → Q CLI에 붙여넣기
+대화 중 "**챗로그**" 또는 "**챗로그파일명**" 요청 시 `/save` 명령어 생성
+- 예시: `/save management/chat-logs/20250905_2226`
+- 생성된 명령어를 복사하여 Q CLI에 붙여넣기
 - 저장 위치: `management/chat-logs/`
 - 파일명 형식: `YYYYMMDD_HHMM`
 
