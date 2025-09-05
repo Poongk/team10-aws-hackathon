@@ -1,475 +1,550 @@
-# GMP CheckMaster AI - 백엔드 API 문서
+# GMP CheckMaster API 문서
 
 ## 📋 개요
-- **프로젝트**: GMP CheckMaster AI 해커톤 백엔드
-- **총 API 수**: 22개
-- **핸들러 수**: 8개
-- **테스트 커버리지**: 100%
-- **작성일**: 2025-09-05
+제약업계 GMP 규정 준수를 위한 지능형 체크리스트 관리 시스템 API
 
-## 🚀 빠른 시작
+**Base URL**: `https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod/`
 
-### 로컬 개발
-```bash
-# 전체 API 테스트
-node test-all-apis.js
+## 🔐 인증
 
-# SAM Local 시작
-sam local start-api --port 3001
+### JWT 토큰 기반 인증
+- **토큰 형식**: `Bearer {token}`
+- **헤더**: `Authorization: Bearer eyJhbGciOiJIUzI1NiIs...`
+- **만료시간**: 8시간
+- **권한**: worker (작업자), admin (관리자)
 
-# 개별 함수 테스트
-sam local invoke AuthHandler --event events/login-test.json
-```
+## 📚 API 엔드포인트
 
-### 클라우드 배포
-```bash
-sam build
-sam deploy --guided
-```
+### 1. 인증 관리
 
-## 📊 API 현황
-
-### 핸들러별 API 분포
-| 핸들러 | API 수 | 주요 기능 |
-|--------|--------|-----------|
-| AuthHandler | 3개 | 인증, 토큰 관리 |
-| ChecklistHandler | 6개 | 체크리스트 CRUD, 수정/재검토 |
-| AIJudgmentHandler | 2개 | AI 판정, 결과 조회 |
-| QRHandler | 2개 | QR 생성/검증 |
-| DashboardHandler | 4개 | 통계, 현황, 팀 관리 |
-| AssignmentHandler | 2개 | 배정 관리 |
-| NotificationHandler | 1개 | 알림 발송 |
-| AdminHandler | 3개 | 관리자 기능 |
-
-## 🔐 1. 인증 API (AuthHandler)
-
-### 1.1 로그인
+#### 1.1 작업자 로그인
 ```http
-POST /auth/login
+POST /auth/worker
+Content-Type: application/json
 ```
 
-**요청**
+**Request:**
 ```json
 {
-  "user_id": "worker1",
-  "password": "demo123"
+  "employee_id": "EMP001"
 }
 ```
 
-**응답**
+**Response (성공):**
 ```json
 {
   "success": true,
   "data": {
-    "token": "demo-jwt-worker1-1757074325299",
-    "user": {
-      "id": "worker1",
-      "name": "김작업",
-      "role": "worker",
-      "team": "생산팀A"
-    },
-    "expires_in": 28800
-  },
-  "message": "Login successful",
-  "timestamp": "2025-09-05T12:12:05.299Z"
+    "user_id": "EMP001",
+    "name": "김철수",
+    "user_type": "worker",
+    "session_token": "eyJhbGciOiJIUzI1NiIs..."
+  }
 }
 ```
 
-### 1.2 로그아웃
-```http
-POST /auth/logout
+**Response (실패):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "등록되지 않은 사번입니다"
+  }
+}
 ```
 
-### 1.3 토큰 검증
+#### 1.2 관리자 로그인
 ```http
-GET /auth/verify
-Authorization: Bearer {token}
+POST /auth/admin
+Content-Type: application/json
 ```
 
-## 📋 2. 체크리스트 API (ChecklistHandler)
-
-### 2.1 템플릿 조회
-```http
-GET /checklists/templates
+**Request:**
+```json
+{
+  "admin_id": "admin"
+}
 ```
 
-**응답**
+**Response (성공):**
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "template_id": "hygiene_checklist",
-      "name": "위생상태점검표",
-      "type": "hygiene",
-      "items": [
-        {
-          "id": "symptoms",
-          "question": "발열, 설사, 구토 증상이 있나요?",
-          "type": "select",
-          "options": ["없음", "있음"]
-        }
-      ]
+  "data": {
+    "user_id": "admin",
+    "name": "시스템 관리자",
+    "user_type": "admin",
+    "session_token": "eyJhbGciOiJIUzI1NiIs..."
+  }
+}
+```
+
+### 2. 체크리스트 관리
+
+#### 2.1 체크리스트 제출
+```http
+POST /checklist
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "user_id": "EMP001",
+  "items": {
+    "symptoms": "아니오",
+    "respiratory": "아니오", 
+    "wounds": "아니오",
+    "uniform": "예",
+    "accessories": "예",
+    "hair": "예",
+    "nails": "예",
+    "makeup": "예",
+    "personal_items": "예"
+  },
+  "ai_analysis": {
+    "item_id": "wounds",
+    "result": "approved"
+  }
+}
+```
+
+**Response (적합):**
+```json
+{
+  "success": true,
+  "data": {
+    "check_id": "EMP001_20250906_0815",
+    "status": "approved",
+    "qr_code": "eyJ1c2VyX2lkIjoiRU1QMDAxIi...",
+    "expire_time": "2025-09-06T08:45:00Z",
+    "message": "위생상태 점검 완료! 안전하게 작업하세요",
+    "ai_result": {
+      "result": "approved",
+      "confidence": 0.95,
+      "message": "상처 크기가 작고 염증이 없어 적합 판정됩니다"
     }
-  ]
-}
-```
-
-### 2.2 체크리스트 제출
-```http
-POST /checklists/submit
-```
-
-**요청**
-```json
-{
-  "user_id": "worker1",
-  "template_id": "hygiene_checklist",
-  "responses": {
-    "symptoms": "없음",
-    "respiratory": "없음",
-    "wound": "없음",
-    "clothing": "적절"
   }
 }
 ```
 
-### 2.3 기록 조회
-```http
-GET /checklists/records
-```
-
-### 2.4 체크리스트 수정 (5분 내)
-```http
-PUT /checklists/records/{record_id}
-```
-
-### 2.5 수정 요청 (5분 후)
-```http
-POST /checklists/modification-request
-```
-
-### 2.6 긴급 재검토 요청
-```http
-POST /checklists/emergency-review
-```
-
-## 🤖 3. AI 판정 API (AIJudgmentHandler)
-
-### 3.1 건강상태 AI 판정
-```http
-POST /ai/judge
-```
-
-**요청**
+**Response (부적합):**
 ```json
 {
-  "responses": {
-    "symptoms": "없음",
-    "respiratory": "없음",
-    "wound": "없음",
-    "clothing": "적절"
+  "success": true,
+  "data": {
+    "check_id": "EMP001_20250906_0820",
+    "status": "rejected", 
+    "reason": "발열, 설사, 구토 등의 증상",
+    "message": "건강상 이유로 오늘은 출근이 어렵습니다",
+    "recommendation": "충분한 휴식 후 내일 다시 체크해주세요"
   }
 }
 ```
 
-**응답**
+#### 2.2 사용자별 체크리스트 조회
+```http
+GET /checklist/{user_id}?limit=10&start_date=2025-09-06&end_date=2025-09-06
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "user_id": "EMP001",
+    "results": [
+      {
+        "check_time": "2025-09-06T08:15:00Z",
+        "status": "approved",
+        "qr_code": "eyJ1c2VyX2lkIjoiRU1QMDAxIi...",
+        "expire_time": "2025-09-06T08:45:00Z",
+        "is_expired": false,
+        "ai_verified": true
+      },
+      {
+        "check_time": "2025-09-05T08:20:00Z",
+        "status": "rejected",
+        "reason": "발열 증상 확인"
+      }
+    ],
+    "total_count": 2
+  }
+}
+```
+
+### 3. AI 분석
+
+#### 3.1 상처 분석
+```http
+POST /ai/analyze-wound
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "user_id": "EMP001",
+  "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+}
+```
+
+**Response (적합):**
 ```json
 {
   "success": true,
   "data": {
     "result": "approved",
-    "reason": "모든 항목이 정상 범위입니다",
     "confidence": 0.95,
-    "qr_eligible": true
+    "analysis": {
+      "wound_size": "small",
+      "inflammation": false,
+      "bleeding": false,
+      "infection_risk": "low"
+    },
+    "message": "상처 크기가 작고 염증이 없어 적합 판정됩니다",
+    "image_url": "s3://bucket/images/emp001_20250906_0815.jpg"
   }
 }
 ```
 
-### AI 판정 로직
-1. **발열/설사/구토 증상 있음** → 자동 거부 (confidence: 1.0)
-2. **호흡기 증상 있음** → 재확인 필요 (confidence: 0.8)
-3. **복장/상처 부적절** → 재확인 필요 (confidence: 0.7)
-4. **모든 항목 정상** → 출입 승인 (confidence: 0.95)
-
-### 3.2 판정 결과 조회
-```http
-GET /ai/judgment/{record_id}
-```
-
-## 📱 4. QR 코드 API (QRHandler)
-
-### 4.1 QR 코드 생성
-```http
-POST /qr/generate
-```
-
-**요청**
-```json
-{
-  "user_id": "worker1",
-  "record_id": "record_123"
-}
-```
-
-**응답**
+**Response (부적합):**
 ```json
 {
   "success": true,
   "data": {
-    "qr_code": "QR-worker1-1757074325299",
-    "user_id": "worker1",
-    "record_id": "record_123",
-    "expires_at": "2025-09-05T20:12:05.299Z",
-    "access_level": "production_area"
+    "result": "rejected",
+    "confidence": 0.92,
+    "analysis": {
+      "wound_size": "medium",
+      "inflammation": true,
+      "bleeding": false,
+      "infection_risk": "high"
+    },
+    "message": "상처에 염증이 확인되어 부적합 판정됩니다",
+    "recommendation": "의료진 상담 후 재검사하시기 바랍니다"
   }
 }
 ```
 
-### 4.2 QR 코드 검증
+### 4. QR 코드 관리
+
+#### 4.1 QR 코드 검증
 ```http
 POST /qr/verify
+Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
-## 📊 5. 대시보드 API (DashboardHandler)
-
-### 5.1 통계 조회
-```http
-GET /dashboard/stats
+**Request:**
+```json
+{
+  "qr_data": "eyJ1c2VyX2lkIjoiRU1QMDAxIi...",
+  "scanner_id": "admin"
+}
 ```
 
-**응답**
+**Response (유효):**
 ```json
 {
   "success": true,
   "data": {
-    "today": {
-      "total_submissions": 45,
-      "approved": 42,
-      "rejected": 2,
-      "pending": 1
-    },
-    "compliance_rate": 94.2,
-    "top_issues": [
-      {"issue": "복장 부적절", "count": 8},
-      {"issue": "호흡기 증상", "count": 4}
-    ]
+    "status": "approved",
+    "user_id": "EMP001",
+    "user_name": "김철수",
+    "check_time": "2025-09-06T08:15:00Z",
+    "expire_time": "2025-09-06T08:45:00Z",
+    "ai_verified": true,
+    "message": "출입 허용 - 김철수님"
   }
 }
 ```
 
-### 5.2 리포트 조회
-```http
-GET /dashboard/reports
+**Response (만료):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "QR_EXPIRED",
+    "message": "만료된 코드입니다. 재검사 필요",
+    "user_name": "김철수",
+    "expired_at": "2025-09-06T08:45:00Z"
+  }
+}
 ```
 
-### 5.3 실시간 현황 조회 (운영자용)
+#### 4.2 QR 코드 만료 처리
 ```http
-GET /dashboard/status
+PUT /qr/expire
+Authorization: Bearer {token}
+Content-Type: application/json
 ```
 
-### 5.4 팀 현황 조회 (책임자용)
-```http
-GET /dashboard/team/{team_id}
+**Request:**
+```json
+{
+  "user_id": "EMP001",
+  "check_time": "2025-09-06T08:15:00Z"
+}
 ```
 
-## 📝 6. 배정 관리 API (AssignmentHandler)
-
-### 6.1 배정 목록 조회
-```http
-GET /assignment/list
-```
-
-**응답**
+**Response:**
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "assignment_id": "assign_001",
-      "template_id": "template_001",
-      "template_name": "위생상태점검표",
-      "user_id": "worker1",
-      "user_name": "김작업",
-      "team": "생산팀A",
-      "schedule": {
-        "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
-        "deadline": "08:20"
+  "data": {
+    "message": "QR 코드가 만료 처리되었습니다",
+    "expired_at": "2025-09-06T09:00:00Z"
+  }
+}
+```
+
+### 5. 출입 로그
+
+#### 5.1 출입 로그 기록
+```http
+POST /access-log
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "user_id": "EMP001",
+  "user_name": "김철수",
+  "action": "scan_success",
+  "result": "approved",
+  "qr_data": "eyJ1c2VyX2lkIjoiRU1QMDAxIi...",
+  "scanner_id": "admin"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "log_id": "20250906_081530_EMP001",
+    "timestamp": "2025-09-06T08:15:30Z"
+  }
+}
+```
+
+#### 5.2 출입 로그 조회
+```http
+GET /access-log?date=2025-09-06&limit=50
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "date": "2025-09-06",
+    "logs": [
+      {
+        "timestamp": "2025-09-06T08:15:30Z",
+        "user_id": "EMP001",
+        "user_name": "김철수",
+        "action": "scan_success",
+        "result": "approved",
+        "scanner_id": "admin"
       },
-      "active": true
-    }
-  ]
-}
-```
-
-### 6.2 배정 생성
-```http
-POST /assignment/create
-```
-
-**요청**
-```json
-{
-  "template_id": "template_001",
-  "user_ids": ["worker1", "worker2"],
-  "schedule": {
-    "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
-    "deadline": "08:20"
+      {
+        "timestamp": "2025-09-06T08:12:15Z",
+        "user_id": "EMP002",
+        "user_name": "이영희",
+        "action": "scan_success",
+        "result": "approved",
+        "scanner_id": "admin"
+      }
+    ],
+    "total_count": 2
   }
 }
 ```
 
-## 🔔 7. 알림 API (NotificationHandler)
+## 🚨 오류 코드
 
-### 7.1 알림 발송
-```http
-POST /notification/send
-```
+### 인증 관련
+- `USER_NOT_FOUND`: 사용자를 찾을 수 없음
+- `INVALID_TOKEN`: 유효하지 않은 토큰
+- `TOKEN_EXPIRED`: 토큰 만료
+- `FORBIDDEN`: 권한 없음
 
-**요청**
-```json
-{
-  "type": "reminder",
-  "target_users": ["worker1", "worker2"],
-  "message": "체크리스트 작성 마감 30분 전입니다.",
-  "priority": "normal"
-}
-```
+### 체크리스트 관련
+- `INVALID_CHECKLIST`: 유효하지 않은 체크리스트 데이터
+- `AI_ANALYSIS_FAILED`: AI 분석 실패
+- `MISSING_DATA`: 필수 데이터 누락
 
-**응답**
-```json
-{
-  "success": true,
-  "data": {
-    "notification_id": "notif_1757074325299",
-    "sent_count": 2,
-    "sent_at": "2025-09-05T12:12:05.299Z"
-  }
-}
-```
+### QR 코드 관련
+- `QR_EXPIRED`: QR 코드 만료
+- `QR_INVALID`: 유효하지 않은 QR 코드
+- `QR_NOT_FOUND`: QR 코드를 찾을 수 없음
 
-## ⚙️ 8. 관리자 API (AdminHandler)
+### 시스템 관련
+- `INTERNAL_ERROR`: 내부 서버 오류
+- `DATABASE_ERROR`: 데이터베이스 오류
 
-### 8.1 템플릿 생성
-```http
-POST /admin/templates
-```
-
-**요청**
-```json
-{
-  "name": "새로운 체크리스트",
-  "type": "hygiene",
-  "items": [
-    {
-      "question": "손 씻기를 완료하셨나요?",
-      "type": "boolean",
-      "required": true
-    }
-  ]
-}
-```
-
-### 8.2 QR 유효시간 설정 (관리자)
-```http
-PUT /admin/qr-validity/template/{template_id}
-```
-
-**요청**
-```json
-{
-  "default_expires_time": "17:30",
-  "weekend_expires_time": "14:00",
-  "emergency_max_extension": "2_hours"
-}
-```
-
-### 8.3 QR 유효시간 당일 조정 (운영자)
-```http
-PUT /operator/qr-validity/daily
-```
-
-**요청**
-```json
-{
-  "date": "2025-09-05",
-  "template_id": "template_001",
-  "adjusted_expires_time": "20:00",
-  "reason": "야근으로 인한 연장"
-}
-```
-
-## 🧪 테스트 데이터
-
-### Demo 사용자
-```javascript
-{
-  'worker1': { id: 'worker1', name: '김작업', role: 'worker', team: '생산팀A' },
-  'operator1': { id: 'operator1', name: '박운영', role: 'operator', team: '운영팀' },
-  'supervisor1': { id: 'supervisor1', name: '이책임', role: 'supervisor', team: '생산팀A' },
-  'admin1': { id: 'admin1', name: '최관리', role: 'admin', team: 'IT팀' },
-  'security1': { id: 'security1', name: '정보보안', role: 'security', team: '보안팀' }
-}
-```
-
-### 위생상태 점검표 템플릿
-- 발열/설사/구토 증상
-- 호흡기 질환
-- 신체 상처
-- 작업복 착용
-- 장신구 제거
-- 두발 상태
-- 손톱 상태
-- 화장 여부
-- 개인 물품 반입
-
-## 🔧 공통 응답 형식
+## 📊 응답 형식
 
 ### 성공 응답
 ```json
 {
   "success": true,
-  "data": {},
-  "message": "Success",
-  "timestamp": "2025-09-05T12:12:05.299Z"
+  "data": {
+    // 응답 데이터
+  }
 }
 ```
 
-### 에러 응답
+### 오류 응답
 ```json
 {
   "success": false,
-  "data": null,
-  "message": "Error message",
-  "timestamp": "2025-09-05T12:12:05.299Z"
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "오류 메시지",
+    "details": {} // 추가 정보 (선택사항)
+  }
 }
 ```
 
-### CORS 헤더
+## 🔒 보안 및 제한사항
+
+### Rate Limiting
+- **일반 API**: 100 requests/minute/user
+- **AI 분석**: 10 requests/minute/user
+- **QR 검증**: 50 requests/minute/scanner
+
+### 데이터 크기 제한
+- **이미지 업로드**: 최대 5MB
+- **Request Body**: 최대 1MB
+- **QR 코드**: 최대 2KB
+
+### CORS 설정
+```javascript
+{
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+}
 ```
-Access-Control-Allow-Origin: *
-Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
-Access-Control-Allow-Headers: Content-Type, Authorization
-Content-Type: application/json
+
+## 🧪 테스트
+
+### cURL 예제
+
+#### 작업자 로그인
+```bash
+curl -X POST https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod/auth/worker \
+  -H "Content-Type: application/json" \
+  -d '{"employee_id": "EMP001"}'
 ```
 
-## 📈 성능 및 제한사항
+#### 체크리스트 제출
+```bash
+curl -X POST https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod/checklist \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "user_id": "EMP001",
+    "items": {
+      "symptoms": "아니오",
+      "respiratory": "아니오",
+      "wounds": "아니오",
+      "uniform": "예",
+      "accessories": "예",
+      "hair": "예",
+      "nails": "예",
+      "makeup": "예",
+      "personal_items": "예"
+    }
+  }'
+```
 
-### 현재 구현 (해커톤용)
-- **데이터 저장**: 메모리 기반 Mock 데이터
-- **인증**: 간단한 JWT 토큰 시뮬레이션
-- **AI 판정**: 규칙 기반 로직
-- **실시간 기능**: 없음
+#### QR 코드 검증
+```bash
+curl -X POST https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod/qr/verify \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "qr_data": "eyJ1c2VyX2lkIjoiRU1QMDAxIi...",
+    "scanner_id": "admin"
+  }'
+```
 
-### 프로덕션 고려사항
-- DynamoDB 연동 필요
-- 실제 JWT 토큰 구현
-- Amazon Bedrock AI 연동
-- WebSocket 실시간 알림
-- 로그 및 모니터링
+## 📈 모니터링
+
+### CloudWatch 메트릭
+- Lambda 함수 실행 시간
+- API Gateway 요청 수
+- DynamoDB 읽기/쓰기 용량
+- 오류 발생률
+
+### 로그 확인
+```bash
+# Lambda 로그 확인
+aws logs filter-log-events --log-group-name /aws/lambda/gmp-checkmaster-AuthHandler
+
+# API Gateway 로그 확인  
+aws logs filter-log-events --log-group-name API-Gateway-Execution-Logs
+```
+
+## 🎯 사용 예제
+
+### JavaScript (Fetch API)
+```javascript
+// 작업자 로그인
+const loginResponse = await fetch('https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod/auth/worker', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    employee_id: 'EMP001'
+  })
+});
+
+const loginData = await loginResponse.json();
+const token = loginData.data.session_token;
+
+// 체크리스트 제출
+const checklistResponse = await fetch('https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod/checklist', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    user_id: 'EMP001',
+    items: {
+      symptoms: '아니오',
+      respiratory: '아니오',
+      wounds: '아니오',
+      uniform: '예',
+      accessories: '예',
+      hair: '예',
+      nails: '예',
+      makeup: '예',
+      personal_items: '예'
+    }
+  })
+});
+
+const checklistData = await checklistResponse.json();
+console.log('QR Code:', checklistData.data.qr_code);
+```
 
 ---
-**작성자**: 백승재  
-**테스트 완료**: 2025-09-05 21:12  
-**API 커버리지**: 100% (22/22)  
-**다음 업데이트**: 클라우드 배포 후
+
+**개발팀**: drug qrew (백승재, 풍기덕)  
+**해커톤**: AWS 해커톤 2025.09.05-06  
+**API 버전**: v1.0  
+**최종 업데이트**: 2025-09-06 02:50
