@@ -59,3 +59,12 @@ resource "aws_s3_bucket_policy" "hello_world" {
 
   depends_on = [aws_s3_bucket_public_access_block.hello_world]
 }
+
+# API 문서 HTML 파일 업로드
+resource "aws_s3_object" "api_docs" {
+  bucket       = data.aws_s3_bucket.hello_world.id
+  key          = "api-docs/index.html"
+  source       = "../api-docs/api-docs.html"
+  content_type = "text/html"
+  etag         = filemd5("../api-docs/api-docs.html")
+}

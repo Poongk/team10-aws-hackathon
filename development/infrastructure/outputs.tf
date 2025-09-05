@@ -22,3 +22,8 @@ output "lambda_function_name" {
   description = "배포된 Lambda 함수 이름"
   value       = aws_lambda_function.gmp_router.function_name
 }
+
+output "api_docs_url" {
+  description = "API 문서 웹페이지 URL"
+  value       = "http://${aws_s3_bucket_website_configuration.hello_world.website_endpoint}/api-docs/"
+}
