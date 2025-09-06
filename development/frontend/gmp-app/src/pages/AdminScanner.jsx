@@ -20,6 +20,9 @@ const AdminScanner = () => {
       setAdmin(JSON.parse(adminSession));
       loadMockLog();
       
+      // 페이지 진입 시 스캔 결과 초기화
+      setLastScanResult(null);
+      
       // 카메라 모드일 때만 카메라 시작
       if (!uploadMode) {
         startCamera();
@@ -118,45 +121,10 @@ const AdminScanner = () => {
     
     setIsScanning(true);
     
-    // QR 스캔 시뮬레이션 (랜덤 결과)
+    // 카메라 스캔 시뮬레이션 (랜덤 결과)
     setTimeout(() => {
-      const mockResults = [
-        {
-          status: 'approved',
-          message: '출입 허용 - 김철수님',
-          user: '김철수',
-          aiVerified: true
-        },
-        {
-          status: 'approved',
-          message: '출입 허용 (AI 검증 완료) - 이영희님',
-          user: '이영희',
-          aiVerified: true
-        },
-        {
-          status: 'expired',
-          message: '만료된 코드입니다. 재검사 필요',
-          user: '박민수',
-          aiVerified: false
-        },
-        {
-          status: 'rejected',
-          message: '출입이 거부되었습니다',
-          user: '최수진',
-          aiVerified: false
-        }
-      ];
-
-      const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-      setLastScanResult(randomResult);
-      addToLog(randomResult);
-      
-      // 3초 후 결과 초기화
-      setTimeout(() => {
-        setLastScanResult(null);
-        setIsScanning(false);
-      }, 3000);
-      
+      simulateRandomResult();
+      setIsScanning(false);
     }, 1000);
   };
 
@@ -176,10 +144,105 @@ const AdminScanner = () => {
 
     setIsScanning(true);
 
-    // QR 스캔 시뮬레이션 (파일 업로드)
-    setTimeout(() => {
-      simulateQRScan();
-    }, 500);
+    try {
+      // 이미지에서 QR 코드 텍스트 추출 시뮬레이션
+      const qrText = await extractQRFromImage(file);
+      
+      if (qrText) {
+        const result = parseQRResult(qrText);
+        setLastScanResult(result);
+        addToLog(result);
+      } else {
+        // QR 코드를 찾을 수 없는 경우 랜덤 결과
+        simulateRandomResult();
+      }
+    } catch (error) {
+      console.error('QR 분석 오류:', error);
+      simulateRandomResult();
+    }
+
+    setIsScanning(false);
+  };
+
+  const extractQRFromImage = async (file) => {
+    // 실제로는 QR 스캐너 라이브러리를 사용하지만, 
+    // 여기서는 파일명이나 메타데이터를 기반으로 시뮬레이션
+    const fileName = file.name.toLowerCase();
+    
+    // 파일명에서 사용자 정보 추출
+    if (fileName.includes('박민수') || fileName.includes('emp003')) {
+      return '박민수 (EMP003)\n만료됨\n점검시간: 2025-09-04 09:10:00\n만료시간: 2025-09-04 09:40:00';
+    } else if (fileName.includes('김철수') || fileName.includes('emp001')) {
+      return '김철수 (EMP001)\n출입허용\n점검시간: 2025-09-06 08:15:00\n만료시간: 2025-09-06 08:45:00';
+    } else if (fileName.includes('이영희') || fileName.includes('emp002')) {
+      return '이영희 (EMP002)\n출입허용\n점검시간: 2025-09-06 08:30:00\n만료시간: 2025-09-06 09:00:00';
+    }
+    
+    return null; // QR 코드를 찾을 수 없음
+  };
+
+  const parseQRResult = (qrText) => {
+    const lines = qrText.split('\n');
+    const userInfo = lines[0]; // "박민수 (EMP003)"
+    const status = lines[1];   // "만료됨" 또는 "출입허용"
+    
+    const userName = userInfo.split(' (')[0];
+    
+    if (status === '만료됨') {
+      return {
+        status: 'expired',
+        message: `만료된 코드입니다. 재검사 필요 - ${userName}님`,
+        user: userName,
+        aiVerified: false
+      };
+    } else if (status === '출입허용') {
+      return {
+        status: 'approved',
+        message: `출입 허용 - ${userName}님`,
+        user: userName,
+        aiVerified: true
+      };
+    } else {
+      return {
+        status: 'rejected',
+        message: `출입이 거부되었습니다 - ${userName}님`,
+        user: userName,
+        aiVerified: false
+      };
+    }
+  };
+
+  const simulateRandomResult = () => {
+    const mockResults = [
+      {
+        status: 'approved',
+        message: '출입 허용 - 김철수님',
+        user: '김철수',
+        aiVerified: true
+      },
+      {
+        status: 'approved',
+        message: '출입 허용 (AI 검증 완료) - 이영희님',
+        user: '이영희',
+        aiVerified: true
+      },
+      {
+        status: 'expired',
+        message: '만료된 코드입니다. 재검사 필요',
+        user: '박민수',
+        aiVerified: false
+      },
+      {
+        status: 'rejected',
+        message: '출입이 거부되었습니다',
+        user: '최수진',
+        aiVerified: false
+      }
+    ];
+
+    const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
+    setLastScanResult(randomResult);
+    addToLog(randomResult);
   };
 
   const toggleMode = () => {
@@ -242,6 +305,10 @@ const AdminScanner = () => {
     navigate('/mvp/login');
   };
 
+  const clearScanResult = () => {
+    setLastScanResult(null);
+  };
+
   if (!admin) {
     return (
       <div className="page-container admin-scanner">
@@ -260,92 +327,108 @@ const AdminScanner = () => {
         </button>
       </div>
 
-      {/* QR 스캐너 영역 */}
-      <div className="scanner-section">
-        {/* 모드 전환 버튼 */}
-        <div className="mode-toggle">
-          <button 
-            onClick={toggleMode}
-            className={`mode-button ${!uploadMode ? 'active' : ''}`}
-          >
-            📷 카메라 스캔
-          </button>
-          <button 
-            onClick={toggleMode}
-            className={`mode-button ${uploadMode ? 'active' : ''}`}
-          >
-            📁 파일 업로드
-          </button>
-        </div>
+      {/* QR 스캐너 영역 - 결과가 없을 때만 표시 */}
+      {!lastScanResult && (
+        <div className="scanner-section">
+          {/* 모드 전환 버튼 */}
+          <div className="mode-toggle">
+            <button 
+              onClick={toggleMode}
+              className={`mode-button ${!uploadMode ? 'active' : ''}`}
+            >
+              📷 카메라 스캔
+            </button>
+            <button 
+              onClick={toggleMode}
+              className={`mode-button ${uploadMode ? 'active' : ''}`}
+            >
+              📁 파일 업로드
+            </button>
+          </div>
 
-        {!uploadMode ? (
-          // 카메라 모드
-          <>
-            <div className="scanner-container">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="scanner-video"
-                onClick={simulateQRScan}
-              />
-              <div className="scanner-overlay">
-                <div className="scan-guide">
-                  <div className="guide-frame"></div>
-                  <div className="guide-text">
-                    📷 QR 스캐너<br />
-                    QR 코드를 화면에 맞춰주세요
+          {!uploadMode ? (
+            // 카메라 모드
+            <>
+              <div className="scanner-container">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="scanner-video"
+                  onClick={simulateQRScan}
+                />
+                <div className="scanner-overlay">
+                  <div className="scan-guide">
+                    <div className="guide-frame"></div>
+                    <div className="guide-text">
+                      📷 QR 스캐너<br />
+                      QR 코드를 화면에 맞춰주세요
+                    </div>
                   </div>
                 </div>
+                {isScanning && (
+                  <div className="scanning-indicator">
+                    <div className="scan-line"></div>
+                  </div>
+                )}
               </div>
-              {isScanning && (
-                <div className="scanning-indicator">
-                  <div className="scan-line"></div>
+              
+              <div className="scanner-hint">
+                💡 화면을 터치하여 QR 스캔 시뮬레이션
+              </div>
+            </>
+          ) : (
+            // 파일 업로드 모드
+            <>
+              <div className="upload-container">
+                <div className="upload-area" onClick={() => fileInputRef.current?.click()}>
+                  <div className="upload-icon">📁</div>
+                  <div className="upload-text">QR 이미지 선택</div>
+                  <div className="upload-subtext">JPG, PNG 파일을 선택하세요</div>
                 </div>
-              )}
-            </div>
-            
-            <div className="scanner-hint">
-              💡 화면을 터치하여 QR 스캔 시뮬레이션
-            </div>
-          </>
-        ) : (
-          // 파일 업로드 모드
-          <>
-            <div className="upload-container">
-              <div className="upload-area" onClick={() => fileInputRef.current?.click()}>
-                <div className="upload-icon">📁</div>
-                <div className="upload-text">QR 이미지 선택</div>
-                <div className="upload-subtext">JPG, PNG 파일을 선택하세요</div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                style={{ display: 'none' }}
-              />
-            </div>
-            
-            <div className="scanner-hint">
-              📁 QR 코드 이미지를 업로드하여 스캔하세요
-            </div>
-          </>
-        )}
-      </div>
+              
+              <div className="scanner-hint">
+                📁 QR 코드 이미지를 업로드하여 스캔하세요
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
-      {/* 스캔 결과 표시 */}
+      {/* 스캔 결과 표시 - 결과가 있을 때만 표시 */}
       {lastScanResult && (
-        <div className={`scan-result ${lastScanResult.status}`}>
-          <div className="result-icon">
-            {getStatusIcon(lastScanResult.status)}
-          </div>
-          <div className="result-content">
-            <div className="result-message">{lastScanResult.message}</div>
-            <div className="result-time">
-              {new Date().toLocaleString('ko-KR')}
+        <div className="scanner-section">
+          <div className="scan-result-container">
+            <div className={`scan-result ${lastScanResult.status}`}>
+              <div className="result-icon">
+                {getStatusIcon(lastScanResult.status)}
+              </div>
+              <div className="result-content">
+                <div className="result-message">{lastScanResult.message}</div>
+                <div className="result-time">
+                  {new Date().toLocaleString('ko-KR')}
+                </div>
+                {lastScanResult.aiVerified && (
+                  <div className="ai-verified-badge">AI 검증 완료</div>
+                )}
+              </div>
             </div>
+          </div>
+          
+          {/* 새 스캔 버튼 */}
+          <div className="scanner-hint">
+            <button onClick={clearScanResult} className="new-scan-button">
+              🔄 새로운 스캔
+            </button>
           </div>
         </div>
       )}
