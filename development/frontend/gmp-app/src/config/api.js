@@ -9,10 +9,10 @@ const getEnvVar = (name, defaultValue = '') => {
 
 // API 설정
 const API_CONFIG = {
-  // 개발 환경 (로컬)
+  // 개발 환경 (로컬) - AWS 서버 사용
   development: {
-    BASE_URL: getEnvVar('REACT_APP_API_BASE_URL', 'http://localhost:3001'),
-    TIMEOUT: parseInt(getEnvVar('REACT_APP_API_TIMEOUT', '10000'))
+    BASE_URL: getEnvVar('REACT_APP_API_BASE_URL', 'https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod'),
+    TIMEOUT: parseInt(getEnvVar('REACT_APP_API_TIMEOUT', '15000'))
   },
   
   // 프로덕션 환경 (AWS 배포)
@@ -53,6 +53,14 @@ const getCurrentEnvironment = () => {
 // 현재 환경의 API 설정
 const currentEnv = getCurrentEnvironment();
 const config = API_CONFIG[currentEnv];
+
+// 디버깅 로그
+console.log('🔧 API 설정:', {
+  환경: currentEnv,
+  'BASE_URL': config.BASE_URL,
+  '환경변수': getEnvVar('REACT_APP_API_BASE_URL'),
+  '호스트': typeof window !== 'undefined' ? window.location.hostname : 'server'
+});
 
 // API 호출 헬퍼 함수
 export const apiCall = async (endpoint, options = {}) => {
