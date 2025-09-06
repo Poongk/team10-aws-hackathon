@@ -180,6 +180,22 @@ const WorkerChecklist = () => {
 
       {/* 진행률 표시 */}
       <div className="progress-section">
+        <div className="progress-info">
+          <div className="progress-text">
+            {getCompletedCount()}/{checklistItems.length} 완료
+          </div>
+          <div className="progress-percentage">
+            {Math.round((getCompletedCount() / checklistItems.length) * 100)}%
+          </div>
+        </div>
+        <div className="progress-bar">
+          {checklistItems.map((_, index) => (
+            <div
+              key={index}
+              className={`progress-segment ${index < getCompletedCount() ? 'completed' : ''}`}
+            />
+          ))}
+        </div>
         <div className="progress-dots">
           {checklistItems.map((_, index) => (
             <div
@@ -187,9 +203,6 @@ const WorkerChecklist = () => {
               className={`progress-dot ${index < getCompletedCount() ? 'completed' : ''}`}
             />
           ))}
-        </div>
-        <div className="progress-text">
-          ({getCompletedCount()}/{checklistItems.length} 완료)
         </div>
       </div>
 
