@@ -130,33 +130,63 @@ const AIAnalysisPopup = ({ isOpen, onClose, onResult }) => {
   };
 
   const analyzeWoundWithAI = async (imageBlob) => {
-    const formData = new FormData();
-    formData.append('image', imageBlob, 'wound.jpg');
+    try {
+      // 이미지를 base64로 변환
+      const base64Data = await blobToBase64(imageBlob);
+      
+      // Hello World에서 검증된 실제 API 호출
+      const response = await fetch('https://31cxzj6n06.execute-api.us-east-1.amazonaws.com/dev/ai/wound-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: JSON.parse(localStorage.getItem('user') || '{}').user_id || 'worker1',
+          wound_location: 'hand', // 기본값, 필요시 사용자 선택으로 변경 가능
+          image_base64: base64Data.split(',')[1] // data:image/jpeg;base64, 부분 제거
+        })
+      });
 
-    // CloudFront 배포된 AI 분석기 API 호출
-    const response = await fetch('https://d2j4brl2hnds1n.cloudfront.net/api/analyze', {
-      method: 'POST',
-      body: formData
-    });
+      if (!response.ok) {
+        throw new Error('AI 분석 API 호출 실패');
+      }
 
-    if (!response.ok) {
-      throw new Error('AI 분석 API 호출 실패');
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'AI 분석 실패');
+      }
+
+      // API 응답을 우리 형식으로 변환
+      const analysisData = data.data;
+      const isApproved = !analysisData.requires_medical_attention && !analysisData.work_restriction;
+      
+      return {
+        result: isApproved ? 'approved' : 'rejected',
+        message: isApproved 
+          ? `상처 크기가 ${analysisData.severity}이고 염증이 없어\n적합 판정됩니다`
+          : `상처 심각도가 ${analysisData.severity}로\n부적합 판정됩니다`,
+        recommendation: !isApproved 
+          ? analysisData.recommendations?.[0] || '의료진 상담 후 재검사하시기 바랍니다'
+          : null,
+        confidence: analysisData.confidence || 0.95,
+        aiAnalysis: analysisData // 원본 AI 분석 결과 보존
+      };
+    } catch (error) {
+      console.error('실제 AI 분석 실패, 폴백 사용:', error);
+      // 실패 시 폴백 시뮬레이션 사용
+      return simulateAIAnalysis();
     }
+  };
 
-    const data = await response.json();
-    
-    // API 응답을 우리 형식으로 변환
-    return {
-      result: data.severity === 'low' ? 'approved' : 'rejected',
-      message: data.severity === 'low' 
-        ? '상처 크기가 작고 염증이 없어\n적합 판정됩니다'
-        : '상처에 염증이 확인되어\n부적합 판정됩니다',
-      recommendation: data.severity !== 'low' 
-        ? '의료진 상담 후 재검사하시기 바랍니다' 
-        : null,
-      confidence: data.confidence || 0.95,
-      aiAnalysis: data // 원본 AI 분석 결과 보존
-    };
+  // Blob을 Base64로 변환하는 헬퍼 함수
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   };
 
   const simulateAIAnalysis = () => {
@@ -167,14 +197,16 @@ const AIAnalysisPopup = ({ isOpen, onClose, onResult }) => {
       return {
         result: 'approved',
         message: '상처 크기가 작고 염증이 없어\n적합 판정됩니다',
-        confidence: 0.95
+        confidence: 0.95,
+        aiAnalysis: null // 시뮬레이션임을 표시
       };
     } else {
       return {
         result: 'rejected',
         message: '상처에 염증이 확인되어\n부적합 판정됩니다',
         recommendation: '의료진 상담 후 재검사하시기 바랍니다',
-        confidence: 0.92
+        confidence: 0.92,
+        aiAnalysis: null // 시뮬레이션임을 표시
       };
     }
   };
@@ -345,6 +377,23 @@ const AIAnalysisPopup = ({ isOpen, onClose, onResult }) => {
                 <div className="result-title">
                   {analysisResult.result === 'error' ? '오류 발생' : '분석 완료'}
                 </div>
+                
+                {/* Bedrock Vision 사용 여부 표시 */}
+                <div className="analysis-method" style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  marginBottom: '10px',
+                  padding: '4px 8px',
+                  backgroundColor: analysisResult.aiAnalysis ? '#e8f5e8' : '#fff3cd',
+                  borderRadius: '4px',
+                  border: `1px solid ${analysisResult.aiAnalysis ? '#28a745' : '#ffc107'}`
+                }}>
+                  {analysisResult.aiAnalysis ? 
+                    '🤖 Amazon Bedrock Vision 분석' : 
+                    '🔄 시뮬레이션 분석'
+                  }
+                </div>
+                
                 <div className="result-message">
                   {analysisResult.message.split('\n').map((line, index) => (
                     <div key={index}>{line}</div>
@@ -355,6 +404,16 @@ const AIAnalysisPopup = ({ isOpen, onClose, onResult }) => {
                     {analysisResult.recommendation}
                   </div>
                 )}
+                
+                {/* 신뢰도 표시 */}
+                <div className="confidence-display" style={{
+                  fontSize: '12px',
+                  color: '#666',
+                  marginTop: '10px',
+                  textAlign: 'center'
+                }}>
+                  신뢰도: {(analysisResult.confidence * 100).toFixed(1)}%
+                </div>
               </div>
               
               <button onClick={handleClose} className="close-result-button">
