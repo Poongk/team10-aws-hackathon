@@ -122,30 +122,66 @@ const WorkerChecklist = () => {
     return getCompletedCount() === checklistItems.length;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isAllCompleted()) {
-      // 체크리스트 결과 저장 (기존 방식 유지)
-      const checklistResult = {
-        user_id: user.user_id,
-        timestamp: new Date().toISOString(),
-        answers: answers,
-        completed: true
-      };
-      
-      localStorage.setItem('checklistResult', JSON.stringify(checklistResult));
-      
-      // 판정 결과 계산
-      const isApproved = determineApproval(answers);
-      
-      // URL 파라미터로 결과 화면에 데이터 전달
-      const params = new URLSearchParams({
-        user: user.name,
-        userId: user.user_id,
-        approved: isApproved ? 'true' : 'false',
-        expired: 'false' // 새로 생성된 결과는 항상 유효
-      });
-      
-      navigate(`/mvp/result?${params.toString()}`);
+      try {
+        console.log('📤 체크리스트 제출 시작');
+        
+        // API로 체크리스트 제출
+        const userSession = localStorage.getItem('userSession');
+        if (!userSession) {
+          alert('로그인이 필요합니다.');
+          navigate('/mvp/login');
+          return;
+        }
+
+        const userData = JSON.parse(userSession);
+        console.log('👤 사용자 데이터:', userData);
+        console.log('📋 제출 데이터:', { user_id: userData.user_id, items: answers });
+
+        const response = await fetch('http://localhost:3001/checklist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userData.session_token}`
+          },
+          body: JSON.stringify({
+            user_id: userData.user_id,
+            items: answers
+          })
+        });
+
+        console.log('📡 API 응답 상태:', response.status, response.statusText);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ API 오류 응답:', errorText);
+          throw new Error(`체크리스트 제출 실패 (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('📊 API 응답 데이터:', data);
+        
+        if (data.success) {
+          // record_id를 받아서 결과 화면으로 이동
+          const recordId = data.data.record_id;
+          console.log('✅ 제출 성공, record_id:', recordId);
+          navigate(`/mvp/worker-result?recordId=${recordId}`);
+        } else {
+          console.error('❌ API 응답 실패:', data);
+          throw new Error(data.error?.message || '제출 실패: 알 수 없는 오류');
+        }
+      } catch (error) {
+        console.error('❌ 체크리스트 제출 오류:', error);
+        
+        // 사용자에게 오류 메시지 표시
+        alert(`체크리스트 제출 중 오류가 발생했습니다:\n${error.message}\n\n다시 시도해주세요.`);
+        
+        // 오류 시에는 페이지 이동하지 않음
+        return;
+      }
+    } else {
+      alert('모든 항목을 완료해주세요.');
     }
   };
 

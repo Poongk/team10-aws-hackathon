@@ -22,6 +22,7 @@ function MVPLayout() {
               <Route path="/dashboard" element={<WorkerDashboard />} />
               <Route path="/checklist" element={<WorkerChecklist />} />
               <Route path="/result" element={<WorkerResult />} />
+              <Route path="/worker-result" element={<WorkerResult />} />
               <Route path="/results" element={<WorkerResults />} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/scanner" element={<AdminScanner />} />

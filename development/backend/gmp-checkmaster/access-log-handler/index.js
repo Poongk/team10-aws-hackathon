@@ -97,45 +97,85 @@ function unauthorizedResponse() {
 }
 
 async function handleCreateLog(event, decoded) {
-    const body = JSON.parse(event.body);
-    const { user_id, user_name, action, result, qr_data, scanner_id } = body;
-    
-    if (!user_id || !user_name || !action || !result || !scanner_id) {
-        return {
-            statusCode: 400,
-            headers: corsHeaders,
-            body: JSON.stringify({
-                success: false,
-                error: {
-                    code: 'MISSING_DATA',
-                    message: '필수 데이터가 누락되었습니다'
-                }
-            })
-        };
-    }
-    
-    const now = new Date();
-    const logId = `${now.toISOString().replace(/[-:]/g, '').slice(0, 15)}_${user_id}`;
-    
-    const logRecord = {
-        pk: `ACCESS_LOG#${now.toISOString().slice(0, 10)}`,
-        sk: `${now.toISOString()}#${user_id}`,
-        log_id: logId,
-        timestamp: now.toISOString(),
-        user_id,
-        user_name,
-        action,
-        result,
-        qr_data,
-        scanner_id,
-        ttl: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60) // 30일 후 삭제
-    };
-    
     try {
+        const body = JSON.parse(event.body || '{}');
+        const { user_id, user_name, action, result, qr_data, scanner_id } = body;
+        
+        // 필수 필드 검증
+        const missingFields = [];
+        if (!user_id) missingFields.push('user_id');
+        if (!user_name) missingFields.push('user_name');
+        if (!action) missingFields.push('action');
+        if (!result) missingFields.push('result');
+        
+        if (missingFields.length > 0) {
+            return {
+                statusCode: 400,
+                headers: corsHeaders,
+                body: JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'MISSING_DATA',
+                        message: `필수 데이터가 누락되었습니다: ${missingFields.join(', ')}`
+                    }
+                })
+            };
+        }
+        
+        // action, result 값 검증
+        if (!['entry', 'exit'].includes(action)) {
+            return {
+                statusCode: 400,
+                headers: corsHeaders,
+                body: JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'INVALID_ACTION',
+                        message: 'action은 entry 또는 exit만 가능합니다'
+                    }
+                })
+            };
+        }
+        
+        if (!['success', 'failed'].includes(result)) {
+            return {
+                statusCode: 400,
+                headers: corsHeaders,
+                body: JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'INVALID_RESULT',
+                        message: 'result는 success 또는 failed만 가능합니다'
+                    }
+                })
+            };
+        }
+        
+        const now = new Date();
+        const logId = `ACCESS_${now.toISOString().replace(/[-:.]/g, '').slice(0, 15)}_${user_id}`;
+        
+        const logRecord = {
+            record_id: logId,
+            user_id: user_id,
+            created_date: now.toISOString().slice(0, 10),
+            timestamp: now.toISOString(),
+            user_name: user_name,
+            action: action,
+            result: result,
+            qr_data: qr_data || null,
+            scanner_id: scanner_id || 'DEFAULT',
+            log_type: 'ACCESS_LOG',
+            ttl: Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60)
+        };
+        
+        console.log('Creating log record:', JSON.stringify(logRecord, null, 2));
+        
         await dynamodb.put({
-            TableName: TABLE_NAME,
+            TableName: TABLE_NAME || 'gmp-checkmaster-checklist-records',
             Item: logRecord
         }).promise();
+        
+        console.log('Log record created successfully:', logId);
         
         return {
             statusCode: 200,
@@ -150,7 +190,22 @@ async function handleCreateLog(event, decoded) {
         };
         
     } catch (error) {
-        console.error('Create Log Error:', error);
+        console.error('Error in handleCreateLog:', error);
+        
+        if (error instanceof SyntaxError) {
+            return {
+                statusCode: 400,
+                headers: corsHeaders,
+                body: JSON.stringify({
+                    success: false,
+                    error: {
+                        code: 'INVALID_JSON',
+                        message: 'JSON 형식이 올바르지 않습니다'
+                    }
+                })
+            };
+        }
+        
         return {
             statusCode: 500,
             headers: corsHeaders,
@@ -158,7 +213,7 @@ async function handleCreateLog(event, decoded) {
                 success: false,
                 error: {
                     code: 'DATABASE_ERROR',
-                    message: '로그 기록 중 오류가 발생했습니다'
+                    message: `데이터베이스 오류: ${error.message}`
                 }
             })
         };
@@ -186,13 +241,13 @@ async function handleGetLogs(event, decoded) {
     const limit = parseInt(queryParams.limit) || 50;
     
     try {
-        const result = await dynamodb.query({
+        const result = await dynamodb.scan({
             TableName: TABLE_NAME,
-            KeyConditionExpression: 'pk = :pk',
+            FilterExpression: 'log_type = :log_type AND created_date = :date',
             ExpressionAttributeValues: {
-                ':pk': `ACCESS_LOG#${date}`
+                ':log_type': 'ACCESS_LOG',
+                ':date': date
             },
-            ScanIndexForward: false, // 최신순 정렬
             Limit: limit
         }).promise();
         
@@ -202,8 +257,12 @@ async function handleGetLogs(event, decoded) {
             user_name: item.user_name,
             action: item.action,
             result: item.result,
-            scanner_id: item.scanner_id
+            scanner_id: item.scanner_id,
+            log_id: item.record_id
         }));
+        
+        // 최신순 정렬
+        logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
         return {
             statusCode: 200,

@@ -116,7 +116,7 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "check_id": "EMP001_20250906_0815",
+    "record_id": "EMP001_20250906_0815",
     "status": "approved",
     "qr_code": "eyJ1c2VyX2lkIjoiRU1QMDAxIi...",
     "expire_time": "2025-09-06T08:45:00Z",
@@ -135,7 +135,7 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "check_id": "EMP001_20250906_0820",
+    "record_id": "EMP001_20250906_0820",
     "status": "rejected", 
     "reason": "발열, 설사, 구토 등의 증상",
     "message": "건강상 이유로 오늘은 출근이 어렵습니다",

@@ -69,71 +69,35 @@ const AdminScanner = () => {
     }
   };
 
-  const loadMockLog = () => {
-    // 더미 출입 로그 데이터
-    const mockLog = [
-      {
-        id: 5,
-        time: '08:15',
-        user: '김철수',
-        status: 'approved',
-        message: '출입허용',
-        aiVerified: true
-      },
-      {
-        id: 4,
-        time: '08:12',
-        user: '이영희',
-        status: 'approved',
-        message: 'AI검증완료',
-        aiVerified: true
-      },
-      {
-        id: 3,
-        time: '08:10',
-        user: '박민수',
-        status: 'expired',
-        message: '만료된코드',
-        aiVerified: false
-      },
-      {
-        id: 2,
-        time: '08:08',
-        user: '정수연',
-        status: 'approved',
-        message: '출입허용',
-        aiVerified: false
-      },
-      {
-        id: 1,
-        time: '08:05',
-        user: '최수진',
-        status: 'rejected',
-        message: '부적합',
-        aiVerified: false
-      }
-    ];
-    setAccessLog(mockLog);
+  const loadMockLog = async () => {
+    // 실제 출입 로그만 조회
+    try {
+      await loadAccessLogs();
+    } catch (error) {
+      console.error('❌ 출입 로그 조회 실패:', error);
+      // 빈 배열로 설정
+      setAccessLog([]);
+    }
   };
-
+  
   const simulateQRScan = () => {
     if (isScanning) return;
     
     setIsScanning(true);
     
-    // 카메라 스캔 시뮬레이션 (랜덤 결과)
-    setTimeout(() => {
-      simulateRandomResult();
-      setIsScanning(false);
-    }, 1000);
+    // 카메라 스캔 시뮬레이션 제거
+    setIsScanning(false);
   };
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
+    console.log('📷 QR 이미지 업로드:', file.name, file.type, file.size);
+
     // 이미지 파일 검증
     if (!file.type.startsWith('image/')) {
+      console.log('❌ 이미지 파일이 아님:', file.type);
       setLastScanResult({
         status: 'error',
         message: '이미지 파일만 업로드 가능합니다',
@@ -141,109 +105,261 @@ const AdminScanner = () => {
       });
       return;
     }
-
+ 
     setIsScanning(true);
 
     try {
       // 이미지에서 QR 코드 텍스트 추출 시뮬레이션
       const qrText = await extractQRFromImage(file);
+      console.log('🔍 QR 텍스트 추출 결과:', qrText);
       
       if (qrText) {
-        const result = parseQRResult(qrText);
+        const result = await parseQRResult(qrText);
+        console.log('📊 QR 파싱 결과:', result);
         setLastScanResult(result);
         addToLog(result);
       } else {
-        // QR 코드를 찾을 수 없는 경우 랜덤 결과
-        simulateRandomResult();
+        console.log('⚠️ QR 코드를 찾을 수 없음');
+        setLastScanResult({
+          status: 'error',
+          message: 'QR 코드를 찾을 수 없습니다. 다른 이미지를 시도해주세요.',
+          user: null
+        });
       }
     } catch (error) {
-      console.error('QR 분석 오류:', error);
-      simulateRandomResult();
+      console.error('❌ QR 분석 오류:', error);
+      setLastScanResult({
+        status: 'error',
+        message: 'QR 코드 분석 중 오류가 발생했습니다',
+        user: null
+      });
     }
 
     setIsScanning(false);
   };
 
   const extractQRFromImage = async (file) => {
-    // 실제로는 QR 스캐너 라이브러리를 사용하지만, 
-    // 여기서는 파일명이나 메타데이터를 기반으로 시뮬레이션
-    const fileName = file.name.toLowerCase();
+    console.log('📷 실제 QR 코드 추출 시작:', file.name);
     
-    // 파일명에서 사용자 정보 추출
-    if (fileName.includes('박민수') || fileName.includes('emp003')) {
-      return '박민수 (EMP003)\n만료됨\n점검시간: 2025-09-04 09:10:00\n만료시간: 2025-09-04 09:40:00';
-    } else if (fileName.includes('김철수') || fileName.includes('emp001')) {
-      return '김철수 (EMP001)\n출입허용\n점검시간: 2025-09-06 08:15:00\n만료시간: 2025-09-06 08:45:00';
-    } else if (fileName.includes('이영희') || fileName.includes('emp002')) {
-      return '이영희 (EMP002)\n출입허용\n점검시간: 2025-09-06 08:30:00\n만료시간: 2025-09-06 09:00:00';
+    try {
+      // QR 코드 스캐너 라이브러리 사용
+      const QrScanner = (await import('qr-scanner')).default;
+      
+      // 이미지 파일에서 QR 코드 스캔
+      const qrResult = await QrScanner.scanImage(file, {
+        returnDetailedScanResult: false,
+        alsoTryWithoutSourceRect: true
+      });
+      
+      console.log('✅ QR 코드 스캔 성공:', qrResult);
+      console.log('📊 QR 결과 타입:', typeof qrResult);
+      console.log('📊 QR 결과 상세:', qrResult);
+      
+      // 결과가 객체인 경우 처리
+      let qrText;
+      if (typeof qrResult === 'string') {
+        qrText = qrResult;
+      } else if (typeof qrResult === 'object' && qrResult !== null) {
+        // 객체인 경우 data 필드나 text 필드 확인
+        qrText = qrResult.data || qrResult.text || JSON.stringify(qrResult);
+      } else {
+        qrText = String(qrResult);
+      }
+      
+      console.log('📝 최종 QR 텍스트:', qrText);
+      console.log('📝 최종 QR 텍스트 타입:', typeof qrText);
+      
+      return qrText;
+      
+    } catch (error) {
+      console.error('❌ QR 코드 스캔 실패:', error);
+      
+      // QR 코드를 찾을 수 없는 경우
+      if (error.message?.includes('No QR code found')) {
+        console.log('⚠️ QR 코드가 없는 이미지입니다');
+        return null;
+      }
+      
+      // 기타 오류
+      throw error;
     }
-    
-    return null; // QR 코드를 찾을 수 없음
   };
 
-  const parseQRResult = (qrText) => {
+  const parseQRResult = async (qrText) => {
+    console.log('🔍 QR 텍스트 파싱 시작:', qrText);
+    console.log('📊 QR 텍스트 상세 정보:');
+    console.log('  - 타입:', typeof qrText);
+    console.log('  - 값:', qrText);
+    
+    // qrText가 문자열이 아닌 경우 처리
+    if (typeof qrText !== 'string') {
+      console.error('❌ QR 텍스트가 문자열이 아님:', qrText);
+      throw new Error('QR 코드 데이터 형식이 올바르지 않습니다');
+    }
+    
+    console.log('  - 길이:', qrText.length);
+    console.log('  - 첫 10자:', qrText.substring(0, 10));
+    console.log('  - 마지막 10자:', qrText.substring(qrText.length - 10));
+    
+    try {
+      // JSON 형태인지 확인
+      const jsonData = JSON.parse(qrText);
+      console.log('✅ JSON 파싱 성공!');
+      console.log('📊 파싱된 JSON 객체:', jsonData);
+      console.log('📊 JSON 객체 키들:', Object.keys(jsonData));
+      
+      // record_id 추출
+      const recordId = jsonData.record_id || jsonData.check_id;
+      console.log('🔑 추출된 record_id:', recordId);
+      
+      if (recordId) {
+        console.log('🔍 record_id로 API 호출 시작:', recordId);
+        
+        // API 호출로 실제 데이터 가져오기
+        const apiResult = await fetchChecklistDetail(recordId);
+        return apiResult;
+      } else {
+        console.error('❌ record_id를 찾을 수 없습니다. JSON 구조:', jsonData);
+        throw new Error('record_id를 찾을 수 없습니다');
+      }
+    } catch (e) {
+      console.log('❌ JSON 파싱 실패:', e.message);
+      console.log('📝 텍스트 형태 QR로 처리합니다');
+      console.log('📝 텍스트 QR 내용 미리보기:', qrText.split('\n').slice(0, 3));
+      throw new Error(e.message);
+      // return parseTextQR(qrText);
+    }
+  };
+
+  const fetchChecklistDetail = async (recordId) => {
+    try {
+      // 관리자 토큰 가져오기
+      const adminSession = localStorage.getItem('adminSession');
+      const adminData = adminSession ? JSON.parse(adminSession) : null;
+      
+      if (!adminData?.session_token) {
+        throw new Error('관리자 인증이 필요합니다');
+      }
+
+      const response = await fetch(`http://localhost:3001/checklist/detail/${recordId}`, {
+        headers: {
+          'Authorization': `Bearer ${adminData.session_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API 호출 실패: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('📊 API 응답 데이터:', data);
+      
+      if (data.success) {
+        const detail = data.data;
+        
+        // API 응답을 스캐너 결과 형태로 변환
+        let status = detail.status;
+        
+        // is_expired가 true면 만료 처리
+        if (detail.is_expired) {
+          status = 'expired';
+        }
+        
+        const result = {
+          status: status === 'approved' ? 'approved' : 
+                  status === 'rejected' ? 'rejected' : 'expired',
+          message: getStatusMessage(status, detail.user_name, detail.reason, detail.is_expired),
+          user: {
+            name: detail.user_name,
+            employeeId: detail.user_id,
+            recordId: detail.check_id,
+            timestamp: detail.check_time || new Date().toISOString(),
+            expireTime: detail.expire_time,
+            reason: detail.reason,
+            isExpired: detail.is_expired
+          }
+        };
+        
+        console.log('✅ API 기반 결과 생성:', result);
+        return result;
+      } else {
+        throw new Error(data.error?.message || 'API 응답 오류');
+      }
+    } catch (error) {
+      console.error('❌ API 호출 오류:', error);
+      
+      // API 실패 시 오류 결과 반환
+      return {
+        status: 'error',
+        message: `데이터 조회 실패: ${error.message}`,
+        user: {
+          name: '알 수 없음',
+          employeeId: recordId,
+          recordId: recordId
+        }
+      };
+    }
+  };
+
+  const getStatusMessage = (status, userName, reason, isExpired) => {
+    // 만료 체크가 최우선
+    if (isExpired) {
+      return `만료된 QR 코드입니다. ${userName}님은 재검사를 받아야 합니다.`;
+    }
+    
+    switch (status) {
+      case 'approved':
+        return `출입 허용 - ${userName}님`;
+      case 'rejected':
+        return `출입 거부 - ${userName}님 (${reason || '건강상 이유'})`;
+      case 'expired':
+        return `만료된 코드 - ${userName}님 (재검사 필요)`;
+      default:
+        return `알 수 없는 상태 - ${userName}님`;
+    }
+  };
+  
+  const parseTextQR = (qrText) => {
+    // 기존 텍스트 형태 QR 코드 처리
     const lines = qrText.split('\n');
     const userInfo = lines[0]; // "박민수 (EMP003)"
     const status = lines[1];   // "만료됨" 또는 "출입허용"
     
     const userName = userInfo.split(' (')[0];
     
+    console.log('📝 텍스트 QR 파싱:', { userInfo, status, userName });
+    
     if (status === '만료됨') {
-      return {
+      const result = {
         status: 'expired',
         message: `만료된 코드입니다. 재검사 필요 - ${userName}님`,
         user: userName,
         aiVerified: false
       };
+      console.log('⏰ 만료된 QR 코드:', result);
+      return result;
     } else if (status === '출입허용') {
-      return {
+      const result = {
         status: 'approved',
         message: `출입 허용 - ${userName}님`,
         user: userName,
         aiVerified: true
       };
+      console.log('✅ 출입 허용 QR 코드:', result);
+      return result;
     } else {
-      return {
+      const result = {
         status: 'rejected',
         message: `출입이 거부되었습니다 - ${userName}님`,
         user: userName,
         aiVerified: false
       };
+      console.log('❌ 출입 거부 QR 코드:', result);
+      return result;
     }
   };
 
-  const simulateRandomResult = () => {
-    const mockResults = [
-      {
-        status: 'approved',
-        message: '출입 허용 - 김철수님',
-        user: '김철수',
-        aiVerified: true
-      },
-      {
-        status: 'approved',
-        message: '출입 허용 (AI 검증 완료) - 이영희님',
-        user: '이영희',
-        aiVerified: true
-      },
-      {
-        status: 'expired',
-        message: '만료된 코드입니다. 재검사 필요',
-        user: '박민수',
-        aiVerified: false
-      },
-      {
-        status: 'rejected',
-        message: '출입이 거부되었습니다',
-        user: '최수진',
-        aiVerified: false
-      }
-    ];
-
-    const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-    setLastScanResult(randomResult);
-    addToLog(randomResult);
-  };
 
   const toggleMode = () => {
     setUploadMode(!uploadMode);
@@ -254,20 +370,101 @@ const AdminScanner = () => {
     }
   };
 
-  const addToLog = (result) => {
+  const addToLog = async (result) => {
+    // console.log(result)
     const logEntry = {
       id: Date.now(),
       time: new Date().toLocaleTimeString('ko-KR', { 
         hour: '2-digit', 
         minute: '2-digit' 
       }),
-      user: result.user,
+      user: result.user?.name || result.user || '알 수 없음',
       status: result.status,
       message: getLogMessage(result),
       aiVerified: result.aiVerified
     };
     
+    // 화면에 표시할 로그 추가
     setAccessLog(prev => [logEntry, ...prev.slice(0, 9)]);
+    
+    // 서버에 출입 로그 기록
+    await recordAccessLog(result);
+  };
+
+  const recordAccessLog = async (result) => {
+    try {
+      const adminSession = localStorage.getItem('adminSession');
+      const adminData = adminSession ? JSON.parse(adminSession) : null;
+      
+      if (!adminData?.session_token) {
+        console.log('⚠️ 관리자 토큰 없음, 출입 로그 기록 생략');
+        return;
+      }
+
+      // 결과에서 사용자 정보 추출
+      console.log('📊 로그 저장용 결과 분석:', result);
+      
+      let userId = 'UNKNOWN';
+      let userName = '알 수 없음';
+      let recordId = null;
+      
+      // result.user에서 정보 추출
+      if (result.user) {
+        console.log('👤 result.user 타입:', typeof result.user, result.user);
+        
+        if (typeof result.user === 'string') {
+          // 문자열인 경우 (예: "김철수")
+          userName = result.user;
+        } else if (typeof result.user === 'object' && result.user !== null) {
+          // 객체인 경우
+          userId = result.user.employeeId || result.user.user_id || 'UNKNOWN';
+          userName = result.user.name || result.user.user_name || result.user.userName || '알 수 없음';
+          recordId = result.user.recordId || result.user.record_id || null;
+          
+          console.log('📝 추출된 정보:', { userId, userName, recordId });
+        }
+      }
+      
+      // userName이 여전히 객체인 경우 처리
+      if (typeof userName === 'object') {
+        console.warn('⚠️ userName이 객체입니다:', userName);
+        userName = userName?.name || userName?.user_name || '알 수 없음';
+      }
+
+      // 출입 결과에 따른 action과 result 결정
+      const action = 'entry'; // 기본적으로 입장 시도
+      const accessResult = result.status === 'approved' ? 'success' : 'failed';
+      
+      const logData = {
+        user_id: userId,
+        user_name: userName,
+        action: action,
+        result: accessResult,
+        qr_data: recordId,
+        scanner_id: 'ADMIN_SCANNER'
+      };
+
+      console.log('📝 출입 로그 기록 데이터:', logData);
+
+      const response = await fetch('http://localhost:3001/access-log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminData.session_token}`
+        },
+        body: JSON.stringify(logData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ 출입 로그 기록 완료:', data.data?.log_id);
+      } else {
+        const errorData = await response.json();
+        console.error('❌ 출입 로그 기록 실패:', response.status, errorData);
+      }
+    } catch (error) {
+      console.error('❌ 출입 로그 기록 오류:', error);
+    }
   };
 
   const getLogMessage = (result) => {
@@ -303,6 +500,60 @@ const AdminScanner = () => {
 
   const goToWorkerLogin = () => {
     navigate('/mvp/login');
+  };
+
+  const loadAccessLogs = async () => {
+    try {
+      const adminSession = localStorage.getItem('adminSession');
+      const adminData = adminSession ? JSON.parse(adminSession) : null;
+      
+      if (!adminData?.session_token) {
+        console.log('⚠️ 관리자 토큰 없음, 로그 조회 불가');
+        setAccessLog([]);
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      console.log('📊 출입 로그 조회 시작:', today);
+
+      const response = await fetch(`http://localhost:3001/access-log?date=${today}&limit=20`, {
+        headers: {
+          'Authorization': `Bearer ${adminData.session_token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ 출입 로그 조회 완료:', data.data);
+        
+        if (data.success && data.data.logs) {
+          // API 응답을 화면 표시용으로 변환
+          const displayLogs = data.data.logs.map((log, index) => ({
+            id: index + 1,
+            time: new Date(log.timestamp).toLocaleTimeString('ko-KR', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            }),
+            user: log.user_name,
+            status: log.result === 'success' ? 'approved' : 'rejected',
+            message: `${log.action === 'entry' ? '입장' : '퇴장'} ${log.result === 'success' ? '성공' : '실패'}`,
+            logId: log.log_id,
+            aiVerified: log.result === 'success'
+          }));
+          
+          setAccessLog(displayLogs);
+        } else {
+          // 데이터가 없으면 빈 배열
+          setAccessLog([]);
+        }
+      } else {
+        console.error('❌ 출입 로그 조회 실패:', response.status);
+        throw new Error(`API 호출 실패: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ 출입 로그 조회 오류:', error);
+      throw error;
+    }
   };
 
   const clearScanResult = () => {

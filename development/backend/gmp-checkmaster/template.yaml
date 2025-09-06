@@ -9,10 +9,10 @@ Globals:
     MemorySize: 256
     Environment:
       Variables:
-        NODE_ENV: development
         CORS_ORIGIN: "*"
-        DYNAMODB_TABLE: !Ref GMPTable
+        DYNAMODB_TABLE: "gmp-checkmaster-checklist-records"
         SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
+        AWS_REGION: us-east-1
   Api:
     Cors:
       AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
@@ -82,6 +82,11 @@ Resources:
           Type: Api
           Properties:
             Path: /checklist/{user_id}
+            Method: get
+        GetChecklistDetail:
+          Type: Api
+          Properties:
+            Path: /checklist/detail/{record_id}
             Method: get
 
   # AI 분석 핸들러 - API 명세서 기준

@@ -4,6 +4,8 @@ import QRCode from 'qrcode';
 import './WorkerResult.css';
 
 const WorkerResult = () => {
+  console.log('🎯 WorkerResult 컴포넌트 렌더링 시작');
+  
   const [user, setUser] = useState(null);
   const [result, setResult] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30분
@@ -11,69 +13,91 @@ const WorkerResult = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  console.log('🔍 현재 searchParams:', searchParams.toString());
+
   useEffect(() => {
-    // URL 파라미터에서 데이터 가져오기
-    const userName = searchParams.get('user');
-    const userId = searchParams.get('userId');
-    const approved = searchParams.get('approved') === 'true';
-    const expired = searchParams.get('expired') === 'true';
+    console.log('🚀 WorkerResult 컴포넌트 마운트됨');
+    console.log('🔗 현재 URL:', window.location.href);
+    
+    // URL 파라미터에서 record_id만 가져오기
+    const recordId = searchParams.get('recordId');
+    
+    console.log('📋 판정결과 record_id:', recordId);
+    console.log('📋 모든 URL 파라미터:', Object.fromEntries(searchParams));
 
-    if (userName && userId) {
-      // URL 파라미터로 사용자 정보 설정
-      const userData = {
-        name: userName,
-        user_id: userId,
-        user_type: 'worker'
-      };
-      setUser(userData);
-
-      // 판정 결과 설정
-      if (approved) {
-        setResult({
-          judgment: 'approved',
-          message: '위생상태 점검 완료!\n안전하게 작업하세요'
-        });
-        generateQRCode(userData, expired);
-      } else {
-        setResult({
-          judgment: 'rejected',
-          message: '건강상 이유로 오늘은\n출근이 어렵습니다'
-        });
-      }
+    if (recordId) {
+      // record_id로 상세 정보 조회
+      fetchChecklistDetail(recordId);
     } else {
-      // 파라미터가 없으면 기존 localStorage 방식 사용
-      loadFromLocalStorage();
+      console.log('❌ recordId가 없음, 결과 페이지로 이동');
+      navigate('/mvp/results');
     }
   }, [searchParams, navigate]);
 
-  const loadFromLocalStorage = () => {
-    // 세션에서 사용자 정보 가져오기
-    const userSession = localStorage.getItem('userSession');
-    if (userSession) {
-      setUser(JSON.parse(userSession));
-    } else {
-      navigate('/mvp/login');
-      return;
-    }
+  const fetchChecklistDetail = async (recordId) => {
+    try {
+      console.log('🔍 체크리스트 상세 조회 시작:', recordId);
+      
+      // 실제 API 연동
+      const userSession = localStorage.getItem('userSession');
+      const userData = userSession ? JSON.parse(userSession) : null;
+      
+      if (!userData?.session_token) {
+        console.log('⚠️ 토큰 없음');
+        alert('로그인이 필요합니다.');
+        navigate('/mvp/login');
+        return;
+      }
 
-    // 체크리스트 결과 가져오기
-    const checklistResult = localStorage.getItem('checklistResult');
-    if (checklistResult) {
-      const data = JSON.parse(checklistResult);
-      const judgmentResult = determineResult(data.answers);
-      setResult({
-        ...data,
-        judgment: judgmentResult.status,
-        message: judgmentResult.message
+      const response = await fetch(`http://localhost:3001/checklist/detail/${recordId}`, {
+        headers: {
+          'Authorization': `Bearer ${userData.session_token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
-      // 적합 판정 시 QR 코드 생성
-      if (judgmentResult.status === 'approved') {
-        generateQRCode(JSON.parse(userSession), data.isExpired, data.expireTime);
+      if (!response.ok) {
+        throw new Error(`API 호출 실패: ${response.status}`);
       }
-    } else {
-      // 결과가 없으면 대시보드로
-      navigate('/mvp/dashboard');
+
+      const data = await response.json();
+      console.log('📊 API 응답:', data);
+      
+      if (data.success) {
+        const detail = data.data;
+        
+        setUser({
+          name: detail.user_name,
+          user_id: detail.user_id
+        });
+        
+        if (detail.status === 'approved') {
+          setResult({
+            record_id: detail.record_id,
+            judgment: 'approved',
+            message: detail.message || '위생상태 점검 완료!\n안전하게 작업하세요',
+            items: detail.items,
+            aiAnalysis: detail.ai_analysis,
+            expireTime: detail.expire_time
+          });
+
+          generateQRCode({ record_id: detail.record_id }, false, detail.expire_time);
+          
+        } else {
+          setResult({
+            checkId: detail.record_id,
+            judgment: 'rejected',
+            message: detail.message || '건강상 이유로 오늘은\n출근이 어렵습니다',
+            items: detail.items,
+            reason: detail.reason
+          });
+        }
+      } else {
+        throw new Error(data.error?.message || 'API 응답 오류');
+      }
+    } catch (error) {
+      console.error('❌ 체크리스트 상세 조회 오류:', error);
+      alert(`데이터를 불러올 수 없습니다:\n${error.message}`);
     }
   };
 
@@ -94,15 +118,15 @@ const WorkerResult = () => {
       const actualExpireTime = expireTime ? new Date(expireTime) : new Date(Date.now() + 30 * 60 * 1000);
       const isActuallyExpired = isExpired || currentTime > actualExpireTime;
       
+      // record_id 기반 QR 코드 데이터
       const qrData = {
-        name: userData.name,
-        employeeId: userData.user_id,
-        status: isActuallyExpired ? '만료됨' : '출입허용',
-        checkTime: new Date().toLocaleString('ko-KR'),
-        expireTime: actualExpireTime.toLocaleString('ko-KR')
+        record_id: userData?.record_id
       };
 
-      const qrText = `${qrData.name} (${qrData.employeeId})\n${qrData.status}\n점검시간: ${qrData.checkTime}\n만료시간: ${qrData.expireTime}`;
+      console.log('🔗 QR 코드 데이터:', qrData);
+
+      // JSON 형태로 QR 코드 생성 (스캐너에서 파싱 가능)
+      const qrText = JSON.stringify(qrData);
       
       const qrCodeDataUrl = await QRCode.toDataURL(qrText, {
         width: 200,
@@ -187,6 +211,21 @@ const WorkerResult = () => {
     };
     
     return messages[reason] || '건강상 이유로 오늘은\n출근이 어렵습니다';
+  };
+
+  const getItemLabel = (key) => {
+    const labels = {
+      symptoms: '발열/설사/구토 증상',
+      respiratory: '호흡기 증상',
+      wounds: '상처 상태',
+      uniform: '작업복 착용',
+      accessories: '액세서리 제거',
+      hair: '모발 정리',
+      nails: '손톱 정리',
+      makeup: '화장품 제거',
+      personal_items: '개인 소지품 정리'
+    };
+    return labels[key] || key;
   };
 
   const formatTime = (seconds) => {
@@ -282,6 +321,56 @@ const WorkerResult = () => {
             </div>
           </div>
         )}
+
+        {/* 체크리스트 상세 정보 */}
+        {result.items && (
+          <div className="checklist-details">
+            <h3>📋 체크리스트 결과</h3>
+            <div className="items-grid">
+              {Object.entries(result.items).map(([key, value]) => (
+                <div key={key} className={`item ${value === '아니오' ? 'negative' : 'positive'}`}>
+                  <span className="item-label">{getItemLabel(key)}</span>
+                  <span className="item-value">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        
+        {/* AI 분석 결과 */}
+        {result.aiAnalysis && (
+          <div className="ai-analysis">
+            <h3>🤖 AI 분석 결과</h3>
+            <div className="ai-content">
+              <div className={`ai-result ${result.aiAnalysis.result}`}>
+                {result.aiAnalysis.result === 'approved' ? '✅ 적합' : '❌ 부적합'}
+              </div>
+              <div className="ai-confidence">
+                신뢰도: {Math.round(result.aiAnalysis.confidence * 100)}%
+              </div>
+              <div className="ai-message">
+                {result.aiAnalysis.message}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 디버깅: 항상 표시되는 AI 분석 */}
+        <div className="ai-analysis">
+          <h3>🤖 AI 분석 결과 (디버깅)</h3>
+          <div className="ai-content">
+            <div className="ai-result approved">
+              ✅ 적합
+            </div>
+            <div className="ai-confidence">
+              신뢰도: 95%
+            </div>
+            <div className="ai-message">
+              상처 크기가 작고 염증이 없어 적합 판정됩니다
+            </div>
+          </div>
+        </div>
 
         {/* 부적합 판정 시 안내 카드 */}
         {result.judgment === 'rejected' && (
