@@ -1,20 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiCall } from '../config/api';
 import './AdminLogin.css';
 
 const AdminLogin = () => {
   const [adminId, setAdminId] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const [demoAdmins, setDemoAdmins] = useState([]);
   const navigate = useNavigate();
 
-  // 관리자 계정 목록 (MVP)
-  const adminAccounts = [
+  // 관리자 계정 목록 (백엔드에서 동적으로 로드)
+  const adminAccounts = demoAdmins.length > 0 ? demoAdmins : [
     { id: 'admin', name: '시스템 관리자' },
     { id: 'manager', name: '출입 관리자' },
     { id: 'supervisor', name: '현장 관리자' }
   ];
+
+  // 백엔드에서 관리자 리스트 로드
+  useEffect(() => {
+    const loadAdmins = async () => {
+      try {
+        const data = await apiCall('/auth/users', { method: 'GET' });
+        if (data.success && data.data && data.data.users) {
+          // admin 타입만 필터링
+          const admins = data.data.users
+            .filter(user => user.type === 'admin')
+            .map(user => ({
+              id: user.user_id,
+              name: user.name
+            }));
+          setDemoAdmins(admins);
+        }
+      } catch (error) {
+        console.error('관리자 리스트 로드 실패:', error);
+      }
+    };
+    loadAdmins();
+  }, []);
 
   useEffect(() => {
     // 자동 로그인 체크
@@ -57,54 +82,76 @@ const AdminLogin = () => {
       return;
     }
 
+    if (!password.trim()) {
+      setError('비밀번호를 입력해주세요');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
-      // 관리자 계정 확인
-      const admin = adminAccounts.find(acc => acc.id === adminId);
-      if (!admin) {
-        setError('등록되지 않은 관리자 ID입니다');
-        setIsLoading(false);
-        return;
+      // 백엔드 API 호출
+      const data = await apiCall('/auth/admin', {
+        method: 'POST',
+        body: JSON.stringify({
+          admin_id: adminId,
+          password: password
+        })
+      });
+
+      if (data.success) {
+        const adminSession = {
+          user_id: data.data.user_id,
+          name: data.data.name,
+          user_type: data.data.user_type,
+          session_token: data.data.session_token
+        };
+        
+        localStorage.setItem('adminSession', JSON.stringify(adminSession));
+        navigate('/mvp/scanner');
+      } else {
+        setError(data.error?.message || '로그인에 실패했습니다');
       }
-
-      // 로그인 성공 시뮬레이션 (1초 대기)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 관리자 세션 저장
-      const adminSession = {
-        id: admin.id,
-        name: admin.name,
-        loginTime: new Date().toISOString(),
-        userType: 'admin'
-      };
-
-      localStorage.setItem('adminSession', JSON.stringify(adminSession));
-
-      // QR 스캐너로 이동
-      navigate('/mvp/scanner');
-
     } catch (error) {
-      console.error('로그인 오류:', error);
-      setError('서버 연결에 실패했습니다. 다시 시도해주세요');
+      console.error('관리자 로그인 오류:', error);
+      setError('서버 연결에 실패했습니다');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleBackdoorLogin = () => {
-    // 해커톤 백도어: 즉시 admin으로 로그인
-    const adminSession = {
-      id: 'admin',
-      name: '시스템 관리자',
-      loginTime: new Date().toISOString(),
-      userType: 'admin',
-      backdoor: true
-    };
+  const handleBackdoorLogin = async () => {
+    setIsLoading(true);
+    try {
+      // 첫 번째 관리자 계정으로 자동 로그인
+      const firstAdmin = adminAccounts[0];
+      if (firstAdmin) {
+        const data = await apiCall('/auth/admin', {
+          method: 'POST',
+          body: JSON.stringify({
+            admin_id: firstAdmin.id
+          })
+        });
 
-    localStorage.setItem('adminSession', JSON.stringify(adminSession));
-    navigate('/mvp/scanner');
+        if (data.success) {
+          const adminSession = {
+            user_id: data.data.user_id,
+            name: data.data.name,
+            user_type: data.data.user_type,
+            session_token: data.data.session_token,
+            backdoor: true
+          };
+          
+          localStorage.setItem('adminSession', JSON.stringify(adminSession));
+          navigate('/mvp/scanner');
+        }
+      }
+    } catch (error) {
+      console.error('백도어 로그인 오류:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -145,12 +192,27 @@ const AdminLogin = () => {
             id="adminId"
             type="text"
             value={adminId}
-            onChange={handleInputChange}
+            onChange={(e) => setAdminId(e.target.value.toLowerCase().trim())}
             onKeyPress={handleKeyPress}
             placeholder="admin"
             className={`admin-input ${error ? 'error' : ''}`}
             disabled={isLoading}
             autoComplete="off"
+          />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="password" className="input-label">비밀번호</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="••••••••••"
+            className={`admin-input ${error ? 'error' : ''}`}
+            disabled={isLoading}
+            autoComplete="current-password"
           />
         </div>
 

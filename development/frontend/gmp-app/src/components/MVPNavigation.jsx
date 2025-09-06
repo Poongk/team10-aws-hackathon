@@ -12,7 +12,6 @@ function MVPNavigation() {
     { path: '/mvp/results', label: '결과 보기', icon: '📊' },
     { path: '/mvp/admin-login', label: '관리자', icon: '🔧' },
     { path: '/mvp/scanner', label: 'QR 스캐너', icon: '📱' },
-    { path: '/desktop/operator-dashboard', label: '데스크톱', icon: '💻' }
   ];
 
   return (

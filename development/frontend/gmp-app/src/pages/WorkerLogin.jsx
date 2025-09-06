@@ -27,10 +27,14 @@ const WorkerLogin = () => {
       try {
         const data = await apiCall('/auth/users', { method: 'GET' });
         if (data.success && data.data && data.data.users) {
-          setDemoUsers(data.data.users.map(user => ({
-            id: user.user_id,
-            name: user.name
-          })));
+          // admin 타입 제외하고 worker만 필터링
+          const workers = data.data.users
+            .filter(user => user.type === 'worker')
+            .map(user => ({
+              id: user.user_id,
+              name: user.name
+            }));
+          setDemoUsers(workers);
         }
       } catch (error) {
         console.error('사용자 리스트 로드 실패:', error);
