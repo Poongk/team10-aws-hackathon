@@ -213,6 +213,24 @@ const WorkerResult = () => {
     navigate('/mvp/dashboard');
   };
 
+  const downloadQRCode = () => {
+    if (!qrCodeUrl) return;
+
+    // 파일명 구성 요소
+    const userName = user?.name || 'user';
+    const date = new Date().toISOString().slice(0, 10);
+    const status = result.judgment === 'approved' ? '적합' : '부적합';
+    const expiredStatus = timeLeft === 0 ? '만료' : '유효';
+    
+    // QR 코드 이미지를 다운로드
+    const link = document.createElement('a');
+    link.href = qrCodeUrl;
+    link.download = `QR_${userName}_${status}_${expiredStatus}_${date}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!user || !result) {
     return (
       <div className="page-container worker-result">
@@ -253,6 +271,11 @@ const WorkerResult = () => {
               {timeLeft === 0 && (
                 <div className="expired-overlay">만료됨</div>
               )}
+              
+              {/* QR 다운로드 버튼 */}
+              <button onClick={downloadQRCode} className="qr-download-button" title="QR 코드 저장">
+                💾 저장
+              </button>
             </div>
             <div className={`timer ${timeLeft <= 300 ? 'warning' : ''}`}>
               {timeLeft === 0 ? '만료됨' : `유효시간: ${formatTime(timeLeft)}`}

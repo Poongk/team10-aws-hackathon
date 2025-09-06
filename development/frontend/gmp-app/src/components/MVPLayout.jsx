@@ -7,10 +7,8 @@ import WorkerDashboard from '../pages/WorkerDashboard';
 import WorkerChecklist from '../pages/WorkerChecklist';
 import WorkerResult from '../pages/WorkerResult';
 import WorkerResults from '../pages/WorkerResults';
-
-// 임시 플레이스홀더 컴포넌트들
-const AdminLogin = () => <div className="placeholder">AD-001: 관리자 로그인 (개발 예정)</div>;
-const AdminScanner = () => <div className="placeholder">AD-002: QR 스캐너 (개발 예정)</div>;
+import AdminLogin from '../pages/AdminLogin';
+import AdminScanner from '../pages/AdminScanner';
 
 function MVPLayout() {
   return (

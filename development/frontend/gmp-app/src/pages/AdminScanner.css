@@ -1,0 +1,459 @@
+/* AD-002: QR 스캐너 스타일 - 스코프 제한 */
+
+/* QR 스캐너 컨테이너 */
+.admin-scanner {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  min-height: 100vh;
+  padding: 16px;
+}
+
+/* 헤더 */
+.admin-scanner .scanner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #fed7aa;
+}
+
+.admin-scanner .scanner-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ea580c;
+  margin: 0;
+}
+
+.admin-scanner .logout-button {
+  padding: 8px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-scanner .logout-button:hover {
+  background: #dc2626;
+}
+
+/* QR 스캐너 영역 */
+.admin-scanner .scanner-section {
+  margin-bottom: 24px;
+}
+
+/* 모드 전환 버튼 */
+.admin-scanner .mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.admin-scanner .mode-button {
+  flex: 1;
+  max-width: 140px;
+  padding: 10px 16px;
+  border: 2px solid #fed7aa;
+  border-radius: 8px;
+  background: white;
+  color: #ea580c;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-scanner .mode-button.active {
+  border-color: #f97316;
+  background: #f97316;
+  color: white;
+}
+
+.admin-scanner .mode-button:hover:not(.active) {
+  border-color: #ea580c;
+  background: #fff7ed;
+}
+
+/* 파일 업로드 컨테이너 */
+.admin-scanner .upload-container {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 16px auto;
+}
+
+.admin-scanner .upload-area {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #fed7aa;
+  border-radius: 16px;
+  background: #fff7ed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-scanner .upload-area:hover {
+  border-color: #f97316;
+  background: #ffedd5;
+}
+
+.admin-scanner .upload-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  color: #f97316;
+}
+
+.admin-scanner .upload-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ea580c;
+  margin-bottom: 8px;
+}
+
+.admin-scanner .upload-subtext {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.admin-scanner .scanner-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 16px auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.admin-scanner .scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.admin-scanner .scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.admin-scanner .scan-guide {
+  text-align: center;
+  color: white;
+}
+
+.admin-scanner .guide-frame {
+  width: 200px;
+  height: 200px;
+  border: 3px dashed #f97316;
+  border-radius: 12px;
+  margin: 0 auto 16px auto;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { 
+    border-color: #f97316;
+    opacity: 1;
+  }
+  50% { 
+    border-color: #fed7aa;
+    opacity: 0.7;
+  }
+}
+
+.admin-scanner .guide-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 스캐닝 인디케이터 */
+.admin-scanner .scanning-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.admin-scanner .scan-line {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  right: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #f97316 50%, transparent 100%);
+  animation: scan-animation 2s linear infinite;
+}
+
+@keyframes scan-animation {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(200px); }
+}
+
+/* 스캐너 힌트 */
+.admin-scanner .scanner-hint {
+  text-align: center;
+  font-size: 14px;
+  color: #ea580c;
+  background: rgba(249, 115, 22, 0.1);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+/* 스캔 결과 */
+.admin-scanner .scan-result {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-scanner .scan-result.approved {
+  background: #dcfce7;
+  border: 2px solid #16a34a;
+}
+
+.admin-scanner .scan-result.expired,
+.admin-scanner .scan-result.rejected {
+  background: #fef2f2;
+  border: 2px solid #dc2626;
+}
+
+.admin-scanner .scan-result.error {
+  background: #fef3c7;
+  border: 2px solid #d97706;
+}
+
+.admin-scanner .result-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.admin-scanner .result-content {
+  flex: 1;
+}
+
+.admin-scanner .result-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.admin-scanner .result-time {
+  font-size: 14px;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+}
+
+/* 출입 로그 */
+.admin-scanner .access-log {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.admin-scanner .access-log h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-scanner .log-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.admin-scanner .log-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.admin-scanner .log-entry:last-child {
+  border-bottom: none;
+}
+
+.admin-scanner .log-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.admin-scanner .log-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-scanner .log-main {
+  font-size: 14px;
+  color: #374151;
+  font-family: 'Courier New', monospace;
+}
+
+.admin-scanner .ai-badge {
+  background: #10b981;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* 로딩 상태 */
+.admin-scanner .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* 로그인 화면 링크 */
+.admin-scanner .login-links {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #fed7aa;
+}
+
+.admin-scanner .login-link-button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+  padding: 8px 16px;
+}
+
+.admin-scanner .login-link-button:hover {
+  color: #f97316;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .admin-scanner {
+    padding: 12px;
+  }
+  
+  .admin-scanner .scanner-header {
+    padding: 12px 0;
+    margin-bottom: 20px;
+  }
+  
+  .admin-scanner .scanner-header h1 {
+    font-size: 20px;
+  }
+  
+  .admin-scanner .mode-toggle {
+    margin-bottom: 16px;
+  }
+  
+  .admin-scanner .mode-button {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  
+  .admin-scanner .scanner-container,
+  .admin-scanner .upload-container {
+    width: 240px;
+    height: 240px;
+  }
+  
+  .admin-scanner .guide-frame {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .admin-scanner .scan-line {
+    top: 30px;
+    left: 30px;
+    right: 30px;
+  }
+  
+  @keyframes scan-animation {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(160px); }
+  }
+  
+  .admin-scanner .upload-icon {
+    font-size: 36px;
+  }
+  
+  .admin-scanner .upload-text {
+    font-size: 14px;
+  }
+  
+  .admin-scanner .upload-subtext {
+    font-size: 12px;
+  }
+  
+  .admin-scanner .access-log {
+    padding: 16px;
+  }
+  
+  .admin-scanner .log-list {
+    max-height: 250px;
+  }
+}
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .admin-scanner .guide-frame {
+    animation: none;
+  }
+  
+  .admin-scanner .scan-line {
+    animation: none;
+  }
+  
+  .admin-scanner .scan-result {
+    animation: none;
+  }
+}

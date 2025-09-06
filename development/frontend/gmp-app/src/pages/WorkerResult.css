@@ -117,6 +117,37 @@
   display: block;
 }
 
+/* QR 다운로드 버튼 */
+.worker-result .qr-download-button {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 6px 12px;
+  background: rgba(16, 185, 129, 0.9);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.worker-result .qr-download-button:hover {
+  background: rgba(16, 185, 129, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.worker-result .qr-download-button:active {
+  transform: translateY(0);
+}
+
 .worker-result .timer {
   font-size: 16px;
   font-weight: 500;

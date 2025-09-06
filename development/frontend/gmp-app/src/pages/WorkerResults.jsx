@@ -23,6 +23,16 @@ const WorkerResults = () => {
     const savedResult = localStorage.getItem('checklistResult');
     const mockResults = [
       {
+        id: 4,
+        date: '2025-09-06T08:30:00Z',
+        status: 'approved',
+        expireTime: new Date(Date.now() + 25 * 60 * 1000).toISOString(), // 25분 후
+        isExpired: false,
+        aiVerified: true,
+        userName: '이영희',
+        userId: 'EMP002'
+      },
+      {
         id: 3,
         date: '2025-09-04T09:10:00Z',
         status: 'approved',

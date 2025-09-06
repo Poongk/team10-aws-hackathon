@@ -48,4 +48,11 @@ build/
 *.tmp
 *.temp
 
+# Screenshots (automation)
+development/frontend/automation/screenshots/
+*.png
+*.jpg
+*.jpeg
+
+# Chat logs
 management/chat-logs

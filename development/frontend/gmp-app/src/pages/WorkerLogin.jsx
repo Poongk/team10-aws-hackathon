@@ -105,6 +105,11 @@ const WorkerLogin = () => {
     }
   };
 
+  // 관리자 로그인으로 이동
+  const goToAdminLogin = () => {
+    navigate('/mvp/admin-login');
+  };
+
   // 데모 계정 선택 화면
   if (showDemo) {
     return (
@@ -248,7 +253,7 @@ const WorkerLogin = () => {
           <p style={{ 
             color: '#8c8c8c', 
             fontSize: '12px',
-            margin: '0',
+            margin: '0 0 16px 0',
             width: '100%',
             textAlign: 'center',
             wordWrap: 'break-word',
@@ -256,6 +261,24 @@ const WorkerLogin = () => {
           }}>
             💡 로그인 버튼에 마우스를 올려보세요
           </p>
+          
+          {/* 관리자 로그인 링크 */}
+          <button 
+            onClick={goToAdminLogin}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#6b7280',
+              fontSize: '14px',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#1890ff'}
+            onMouseLeave={(e) => e.target.style.color = '#6b7280'}
+          >
+            관리자 로그인은 여기를 클릭
+          </button>
         </div>
       </div>
     </div>
