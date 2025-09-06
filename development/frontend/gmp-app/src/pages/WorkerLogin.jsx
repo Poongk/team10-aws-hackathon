@@ -23,10 +23,12 @@ const WorkerLogin = () => {
 
   // 백엔드에서 사용자 리스트 로드
   useEffect(() => {
+    let isMounted = true;
+    
     const loadUsers = async () => {
       try {
         const data = await apiCall('/auth/users', { method: 'GET' });
-        if (data.success && data.data && data.data.users) {
+        if (data.success && data.data && data.data.users && isMounted) {
           // admin 타입 제외하고 worker만 필터링
           const workers = data.data.users
             .filter(user => user.type === 'worker')
@@ -37,10 +39,17 @@ const WorkerLogin = () => {
           setDemoUsers(workers);
         }
       } catch (error) {
-        console.error('사용자 리스트 로드 실패:', error);
+        if (isMounted) {
+          console.error('사용자 리스트 로드 실패:', error);
+        }
       }
     };
+    
     loadUsers();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // 입력 검증
