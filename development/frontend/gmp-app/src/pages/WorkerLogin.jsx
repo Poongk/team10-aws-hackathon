@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiCall } from '../config/api';
 import './WorkerLogin.css';
 
 const WorkerLogin = () => {
@@ -8,16 +9,35 @@ const WorkerLogin = () => {
   const [error, setError] = useState('');
   const [isHovering, setIsHovering] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  const [demoUsers, setDemoUsers] = useState([]);
   const navigate = useNavigate();
 
-  // 유효한 사번 목록 (MVP)
-  const validEmployees = [
+  // 유효한 사번 목록 (백엔드에서 동적으로 로드)
+  const validEmployees = demoUsers.length > 0 ? demoUsers : [
     { id: 'EMP001', name: '김철수' },
     { id: 'EMP002', name: '이영희' },
     { id: 'EMP003', name: '박민수' },
     { id: 'EMP004', name: '정수연' },
     { id: 'EMP005', name: '최수진' }
   ];
+
+  // 백엔드에서 사용자 리스트 로드
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const data = await apiCall('/auth/users', { method: 'GET' });
+        if (data.success && data.data && data.data.users) {
+          setDemoUsers(data.data.users.map(user => ({
+            id: user.user_id,
+            name: user.name
+          })));
+        }
+      } catch (error) {
+        console.error('사용자 리스트 로드 실패:', error);
+      }
+    };
+    loadUsers();
+  }, []);
 
   // 입력 검증
   const validateEmployeeId = (input) => {
@@ -61,18 +81,28 @@ const WorkerLogin = () => {
           return;
         }
         
-        // 세션 저장
-        localStorage.setItem('userSession', JSON.stringify({
-          user_id: validation.employee.id,
-          name: validation.employee.name,
-          user_type: 'worker'
-        }));
-        
-        // 대시보드로 이동
-        navigate('/mvp/dashboard');
+        // 백엔드 API 호출
+        const data = await apiCall('/auth/worker', {
+          method: 'POST',
+          body: JSON.stringify({
+            employee_id: validation.employee.id
+          })
+        });
+
+        if (data.success) {
+          localStorage.setItem('userSession', JSON.stringify({
+            user_id: data.data.user_id,
+            name: data.data.name,
+            user_type: data.data.user_type,
+            session_token: data.data.session_token
+          }));
+          navigate('/mvp/dashboard');
+        } else {
+          setError(data.error?.message || '로그인에 실패했습니다');
+        }
         
       } catch (error) {
-        setError('로그인 처리 중 오류가 발생했습니다');
+        setError('서버 연결에 실패했습니다');
       } finally {
         setIsLoading(false);
       }
@@ -93,15 +123,29 @@ const WorkerLogin = () => {
   };
 
   // 데모 계정 로그인
-  const handleDemoLogin = (employeeId) => {
-    const employee = validEmployees.find(emp => emp.id === employeeId);
-    if (employee) {
-      localStorage.setItem('userSession', JSON.stringify({
-        user_id: employee.id,
-        name: employee.name,
-        user_type: 'worker'
-      }));
-      navigate('/mvp/dashboard');
+  const handleDemoLogin = async (employeeId) => {
+    setIsLoading(true);
+    try {
+      const data = await apiCall('/auth/worker', {
+        method: 'POST',
+        body: JSON.stringify({
+          employee_id: employeeId
+        })
+      });
+
+      if (data.success) {
+        localStorage.setItem('userSession', JSON.stringify({
+          user_id: data.data.user_id,
+          name: data.data.name,
+          user_type: data.data.user_type,
+          session_token: data.data.session_token
+        }));
+        navigate('/mvp/dashboard');
+      }
+    } catch (error) {
+      console.error('데모 로그인 오류:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
