@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticatedApiCall } from '../config/api';
 import './WorkerResults.css';
 
 const WorkerResults = () => {
@@ -24,18 +25,10 @@ const WorkerResults = () => {
   const fetchChecklistResults = async (userId, token) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/checklist/${userId}?limit=10`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const data = await authenticatedApiCall(`/checklist/${userId}?limit=10`, {
+        method: 'GET'
       });
 
-      if (!response.ok) {
-        throw new Error('체크리스트 조회 실패');
-      }
-
-      const data = await response.json();
       console.log('📊 API 응답 데이터:', data);
       
       if (data.success) {

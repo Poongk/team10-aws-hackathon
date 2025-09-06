@@ -11,7 +11,7 @@ const getEnvVar = (name, defaultValue = '') => {
 const API_CONFIG = {
   // 개발 환경 (로컬) - AWS 서버 사용
   development: {
-    BASE_URL: getEnvVar('REACT_APP_API_BASE_URL', 'https://2c0irfuzji.execute-api.us-east-1.amazonaws.com/Prod'),
+    BASE_URL: getEnvVar('REACT_APP_API_BASE_URL', 'http://localhost:3001'),
     TIMEOUT: parseInt(getEnvVar('REACT_APP_API_TIMEOUT', '15000'))
   },
   

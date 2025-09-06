@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticatedApiCall } from '../config/api';
 import './AdminScanner.css';
 
 const AdminScanner = () => {
@@ -233,26 +234,12 @@ const AdminScanner = () => {
 
   const fetchChecklistDetail = async (recordId) => {
     try {
-      // 관리자 토큰 가져오기
-      const adminSession = localStorage.getItem('adminSession');
-      const adminData = adminSession ? JSON.parse(adminSession) : null;
+      console.log('🔍 record_id로 API 호출:', recordId);
       
-      if (!adminData?.session_token) {
-        throw new Error('관리자 인증이 필요합니다');
-      }
-
-      const response = await fetch(`http://localhost:3001/checklist/detail/${recordId}`, {
-        headers: {
-          'Authorization': `Bearer ${adminData.session_token}`,
-          'Content-Type': 'application/json'
-        }
+      const data = await authenticatedApiCall(`/checklist/detail/${recordId}`, {
+        method: 'GET'
       });
 
-      if (!response.ok) {
-        throw new Error(`API 호출 실패: ${response.status}`);
-      }
-
-      const data = await response.json();
       console.log('📊 API 응답 데이터:', data);
       
       if (data.success) {
@@ -393,14 +380,6 @@ const AdminScanner = () => {
 
   const recordAccessLog = async (result) => {
     try {
-      const adminSession = localStorage.getItem('adminSession');
-      const adminData = adminSession ? JSON.parse(adminSession) : null;
-      
-      if (!adminData?.session_token) {
-        console.log('⚠️ 관리자 토큰 없음, 출입 로그 기록 생략');
-        return;
-      }
-
       // 결과에서 사용자 정보 추출
       console.log('📊 로그 저장용 결과 분석:', result);
       
@@ -446,21 +425,15 @@ const AdminScanner = () => {
 
       console.log('📝 출입 로그 기록 데이터:', logData);
 
-      const response = await fetch('http://localhost:3001/access-log', {
+      const data = await authenticatedApiCall('/access-log', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${adminData.session_token}`
-        },
         body: JSON.stringify(logData)
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (data.success) {
         console.log('✅ 출입 로그 기록 완료:', data.data?.log_id);
       } else {
-        const errorData = await response.json();
-        console.error('❌ 출입 로그 기록 실패:', response.status, errorData);
+        console.error('❌ 출입 로그 기록 실패:', data.error);
       }
     } catch (error) {
       console.error('❌ 출입 로그 기록 오류:', error);
@@ -504,51 +477,34 @@ const AdminScanner = () => {
 
   const loadAccessLogs = async () => {
     try {
-      const adminSession = localStorage.getItem('adminSession');
-      const adminData = adminSession ? JSON.parse(adminSession) : null;
-      
-      if (!adminData?.session_token) {
-        console.log('⚠️ 관리자 토큰 없음, 로그 조회 불가');
-        setAccessLog([]);
-        return;
-      }
-
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
       console.log('📊 출입 로그 조회 시작:', today);
 
-      const response = await fetch(`http://localhost:3001/access-log?date=${today}&limit=20`, {
-        headers: {
-          'Authorization': `Bearer ${adminData.session_token}`
-        }
+      const data = await authenticatedApiCall(`/access-log?date=${today}&limit=20`, {
+        method: 'GET'
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ 출입 로그 조회 완료:', data.data);
+      console.log('✅ 출입 로그 조회 완료:', data.data);
+      
+      if (data.success && data.data.logs) {
+        // API 응답을 화면 표시용으로 변환
+        const displayLogs = data.data.logs.map((log, index) => ({
+          id: index + 1,
+          time: new Date(log.timestamp).toLocaleTimeString('ko-KR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }),
+          user: log.user_name,
+          status: log.result === 'success' ? 'approved' : 'rejected',
+          message: `${log.action === 'entry' ? '입장' : '퇴장'} ${log.result === 'success' ? '성공' : '실패'}`,
+          logId: log.log_id,
+          aiVerified: log.result === 'success'
+        }));
         
-        if (data.success && data.data.logs) {
-          // API 응답을 화면 표시용으로 변환
-          const displayLogs = data.data.logs.map((log, index) => ({
-            id: index + 1,
-            time: new Date(log.timestamp).toLocaleTimeString('ko-KR', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            }),
-            user: log.user_name,
-            status: log.result === 'success' ? 'approved' : 'rejected',
-            message: `${log.action === 'entry' ? '입장' : '퇴장'} ${log.result === 'success' ? '성공' : '실패'}`,
-            logId: log.log_id,
-            aiVerified: log.result === 'success'
-          }));
-          
-          setAccessLog(displayLogs);
-        } else {
-          // 데이터가 없으면 빈 배열
-          setAccessLog([]);
-        }
+        setAccessLog(displayLogs);
       } else {
-        console.error('❌ 출입 로그 조회 실패:', response.status);
-        throw new Error(`API 호출 실패: ${response.status}`);
+        // 데이터가 없으면 빈 배열
+        setAccessLog([]);
       }
     } catch (error) {
       console.error('❌ 출입 로그 조회 오류:', error);

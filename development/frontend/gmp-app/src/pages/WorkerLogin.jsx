@@ -13,13 +13,7 @@ const WorkerLogin = () => {
   const navigate = useNavigate();
 
   // 유효한 사번 목록 (백엔드에서 동적으로 로드)
-  const validEmployees = demoUsers.length > 0 ? demoUsers : [
-    { id: 'EMP001', name: '김철수' },
-    { id: 'EMP002', name: '이영희' },
-    { id: 'EMP003', name: '박민수' },
-    { id: 'EMP004', name: '정수연' },
-    { id: 'EMP005', name: '최수진' }
-  ];
+  const validEmployees = demoUsers.length > 0 ? demoUsers : [];
 
   // 백엔드에서 사용자 리스트 로드
   useEffect(() => {

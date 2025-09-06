@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { apiCall } from '../config/api';
 import QRCode from 'qrcode';
 import './WorkerResult.css';
 
@@ -49,18 +50,10 @@ const WorkerResult = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/checklist/detail/${recordId}`, {
-        headers: {
-          'Authorization': `Bearer ${userData.session_token}`,
-          'Content-Type': 'application/json'
-        }
+      const data = await apiCall(`/checklist/detail/${recordId}`, {
+        method: 'GET'
       });
 
-      if (!response.ok) {
-        throw new Error(`API 호출 실패: ${response.status}`);
-      }
-
-      const data = await response.json();
       console.log('📊 API 응답:', data);
       
       if (data.success) {
@@ -355,22 +348,6 @@ const WorkerResult = () => {
             </div>
           </div>
         )}
-
-        {/* 디버깅: 항상 표시되는 AI 분석 */}
-        <div className="ai-analysis">
-          <h3>🤖 AI 분석 결과 (디버깅)</h3>
-          <div className="ai-content">
-            <div className="ai-result approved">
-              ✅ 적합
-            </div>
-            <div className="ai-confidence">
-              신뢰도: 95%
-            </div>
-            <div className="ai-message">
-              상처 크기가 작고 염증이 없어 적합 판정됩니다
-            </div>
-          </div>
-        </div>
 
         {/* 부적합 판정 시 안내 카드 */}
         {result.judgment === 'rejected' && (

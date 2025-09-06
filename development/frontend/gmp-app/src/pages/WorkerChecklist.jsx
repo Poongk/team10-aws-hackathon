@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticatedApiCall } from '../config/api';
 import AIAnalysisPopup from '../components/AIAnalysisPopup';
 import './WorkerChecklist.css';
 
@@ -139,27 +140,14 @@ const WorkerChecklist = () => {
         console.log('👤 사용자 데이터:', userData);
         console.log('📋 제출 데이터:', { user_id: userData.user_id, items: answers });
 
-        const response = await fetch('http://localhost:3001/checklist', {
+        const data = await authenticatedApiCall('/checklist', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${userData.session_token}`
-          },
           body: JSON.stringify({
             user_id: userData.user_id,
             items: answers
           })
         });
 
-        console.log('📡 API 응답 상태:', response.status, response.statusText);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ API 오류 응답:', errorText);
-          throw new Error(`체크리스트 제출 실패 (${response.status}): ${errorText}`);
-        }
-
-        const data = await response.json();
         console.log('📊 API 응답 데이터:', data);
         
         if (data.success) {
