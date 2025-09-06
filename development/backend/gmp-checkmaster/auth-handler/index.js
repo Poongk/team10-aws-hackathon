@@ -47,6 +47,11 @@ exports.handler = async (event) => {
             return await handleAdminLogin(body);
         }
         
+        // 🎭 해커톤 백도어: MVP용 사용자 리스트 (토큰 불필요)
+        if (path === '/auth/users' && httpMethod === 'GET') {
+            return await handleGetUsers();
+        }
+        
         return {
             statusCode: 404,
             headers: corsHeaders,
@@ -178,6 +183,30 @@ async function handleAdminLogin(body) {
                 name: user.name,
                 user_type: 'admin',
                 session_token: token
+            }
+        })
+    };
+}
+
+// 🎭 해커톤 백도어: MVP용 사용자 리스트 반환 (토큰 불필요)
+async function handleGetUsers() {
+    const userList = Object.entries(users).map(([id, info]) => ({
+        user_id: id,
+        name: info.name,
+        type: info.type,
+        description: info.type === 'worker' ? `작업자 - ${info.name}` : `관리자 - ${info.name}`
+    }));
+
+    return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({
+            success: true,
+            message: '🎭 해커톤 MVP용 사용자 리스트',
+            data: {
+                users: userList,
+                total: userList.length,
+                demo_note: '해커톤 시연용 - 실제 서비스에서는 제거 필요'
             }
         })
     };

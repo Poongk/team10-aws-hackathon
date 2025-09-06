@@ -13,6 +13,11 @@ Globals:
         CORS_ORIGIN: "*"
         DYNAMODB_TABLE: !Ref GMPTable
         SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/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"
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
 
 Resources:
   # DynamoDB 테이블
@@ -52,6 +57,11 @@ Resources:
           Properties:
             Path: /auth/admin
             Method: post
+        GetUsers:
+          Type: Api
+          Properties:
+            Path: /auth/users
+            Method: get
 
   # 체크리스트 핸들러 - API 명세서 기준
   ChecklistHandler:
